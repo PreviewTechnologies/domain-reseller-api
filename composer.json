@@ -1,0 +1,20 @@
+{
+    "name": "domain-reseller-api",
+    "description": "Domain reseller API for NetEarthOne domain reseller",
+    "homepage": "https://github.com/shahariaazam",
+    "authors": [
+        {
+            "name": "Shaharia Azam",
+            "email": "shaharia.azam@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "guzzle/guzzle": "3.7.*@dev"
+    },
+    "autoload": {
+        "psr-0": {
+            "": "src/"
+        }
+    }
+}
