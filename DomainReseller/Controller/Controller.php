@@ -7,11 +7,26 @@ use DomainReseller\Api\Api;
 
 class Controller extends Api
 {
-
+    /**
+     * @var null
+     */
     protected $apiKey = null;
+
+    /**
+     * @var null
+     */
     protected $resellerId = null;
+
+    /**
+     * @var
+     */
     public $apiError;
 
+    /**
+     * @param null $apiKey
+     * @param null $resellerId
+     * @param bool $testMode
+     */
     function __construct($apiKey = null, $resellerId = null, $testMode = true)
     {
         $this->api = parent::__construct($apiKey, $resellerId, true);
