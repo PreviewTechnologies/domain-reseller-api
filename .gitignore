@@ -2,3 +2,4 @@ vendor/*
 .git/*
 .idea/*
 src/Execute.php
+Tests/DomainReseller/Controller/MyControllerTest.php

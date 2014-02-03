@@ -1,19 +1,12 @@
 <?php
-/**
- * @Author  Shaharia Azam <shaharia.azam@gmail.com>
- * @URI http://github.com/shahariaazam/domain-reseller-api
- *
- * @description To handle and manage domain reseller program
- */
 
-namespace DomainReseller;
-
-require dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'vendor/autoload.php';
+namespace DomainReseller\Api;
 
 use Guzzle\Http\Client;
 
-class DomainReseller
+class Api
 {
+
     /**
      * API key to access the domain reseller API
      * @var
@@ -55,7 +48,7 @@ class DomainReseller
      * To categorize the URLS for all API call we will use this array $urlSet
      * @var array
      */
-    private $urlSet = array(
+    protected $urlSet = array(
         'domainCheck' => 'domains/available.json'
     );
 
@@ -67,14 +60,14 @@ class DomainReseller
      */
     public function __construct($apiKey = null, $resellerId = null, $testMode = true)
     {
-        if(empty($apiKey) || empty($resellerId)){
+        if (empty($apiKey) || empty($resellerId)) {
             throw new \Exception('You must provide API Key, Reseller ID');
         }
         $this->apiKey = $apiKey;
         $this->resellerId = $resellerId;
         $this->testMode = true;
         $this->client = new Client($this->testUrl);
-        if($testMode === false){
+        if ($testMode === false) {
             $this->client = new Client($this->liveUrl);
         }
         $this->client->setDefaultOption('query', array(
@@ -95,23 +88,4 @@ class DomainReseller
         return $this->client->get($urlCommand, $headers, array('query' => $query));
     }
 
-    /**
-     * @param null $domain
-     * @param null $tld
-     * @return array|bool|float|int|string
-     * @throws \Exception
-     */
-    public function checkDomain($domain = null, $tld = null)
-    {
-        if(empty($domain) || empty($tld)){
-            throw new \Exception('You must provide a domain name and TLD');
-        }
-        $request = $this->__buildRequest($this->urlSet['domainCheck'],
-            array(
-                'domain-name' => $domain,
-                'tlds' => $tld
-            )
-        );
-        return $request->send()->json();
-    }
 }
