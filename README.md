@@ -27,7 +27,7 @@ $DomainController = new Controller($apiKey, $resellerId, true);
 /**
 * To check domain availability
 */
-$domainController->checkDomain($domain);
+$DomainController->checkDomain($domain);
 ```
 
 and you are done!
