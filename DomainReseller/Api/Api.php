@@ -65,7 +65,7 @@ class Api
         }
         $this->apiKey = $apiKey;
         $this->resellerId = $resellerId;
-        $this->testMode = true;
+        $this->testMode = $testMode;
         $this->client = new Client($this->testUrl);
         if ($testMode === false) {
             $this->client = new Client($this->liveUrl);
