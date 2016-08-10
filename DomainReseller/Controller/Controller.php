@@ -29,7 +29,7 @@ class Controller extends Api
      */
     function __construct($apiKey = null, $resellerId = null, $testMode = true)
     {
-        $this->api = parent::__construct($apiKey, $resellerId, true);
+        $this->api = parent::__construct($apiKey, $resellerId, $testMode);
     }
 
     /**
