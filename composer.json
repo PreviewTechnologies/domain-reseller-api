@@ -1,7 +1,7 @@
 {
-    "name": "previewict/domain-reseller-api",
-    "description": "Domain reseller API for NetEarthOne domain reseller",
-    "homepage": "https://github.com/previewict/domain-reseller-api",
+    "name": "previewtechs/domain-reseller-api",
+    "description": "Domain reseller API for PHP application",
+    "homepage": "https://github.com/PreviewTechnologies/domain-reseller-api",
     "authors": [
         {
             "name": "Shaharia Azam",
@@ -9,15 +9,17 @@
         }
     ],
     "require": {
-        "php": ">=5.3.0",
-        "guzzle/guzzle": "3.7.*@dev"
+        "php": ">=5.5",
+        "guzzle/guzzle": "3.7.*@dev",
+        "guzzlehttp/psr7": "^1.4",
+        "php-http/guzzle6-adapter": "^1.1"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*"
     },
     "autoload": {
-        "psr-0": {
-            "DomainReseller\\": ""
+        "psr-4": {
+            "PreviewTechs\\DomainReseller\\": "src"
         }
     }
 }
