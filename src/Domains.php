@@ -23,6 +23,8 @@ class Domains
      * @param $domainName
      * @param $extensions
      * @return bool
+     * @throws Exceptions\ProviderExceptions
+     * @throws \Http\Client\Exception
      */
     public function isAvailable($domainName, $extensions)
     {
@@ -34,6 +36,8 @@ class Domains
      * @param null $tld
      * @param bool $exactMatch
      * @return array
+     * @throws Exceptions\ProviderExceptions
+     * @throws \Http\Client\Exception
      */
     public function getSuggestions($keyword, $tld = null, $exactMatch = false)
     {
