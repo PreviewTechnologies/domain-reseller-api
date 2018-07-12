@@ -1,55 +1,94 @@
-Domain reseller API
-===================
+## Domain reseller API
 
 This will perform all the operation to register domain, check domain, WHOIS lookup and most of the major action from your Domain reseller control panel. it's pretty simple to use.
 
-Installation via Composer
-=========================
-In your **composer.json** file just put the package name **previewict/domain-reseller-api** in require list like below
+### Installation via Composer
+Install this library with composer by running the following command
 
-```json
-"require": {
-        "previewict/domain-reseller-api": "dev-master"
-    },
 ```
-
-now run `composer update` command and it will automatically install the [Domain Reseller API](https://github.com/previewict/domain-reseller-api) PHP library for you to use.
+composer require previewtechs/domain-reseller-api
+```
 
 Now just add the following code in your PHP script where you will use this library.
 
 ```php
 <?php
 
-use DomainReseller\Controller\Controller;
+//Get domain name suggestions
 
-$DomainController = new Controller($apiKey, $resellerId, true);
+use PreviewTechs\DomainReseller\Domains;
+use PreviewTechs\DomainReseller\Exceptions\ProviderExceptions;
+use PreviewTechs\DomainReseller\Providers\NetEarthOne;
 
-/**
-* To check domain availability
-*/
-$DomainController->checkDomain($domain);
+require "vendor/autoload.php";
+
+$domainResellerProvider = new NetEarthOne("NET_EARTH_ONE_API_KEY", "NET_EARTH_ONE_AUTH_ID", true);
+$domain = new Domains($domainResellerProvider);
+try {
+    $suggestedDomains = $domain->getSuggestions("example");
+} catch (\Http\Client\Exception $e) {
+    echo $e->getMessage();
+} catch (ProviderExceptions $e) {
+    echo $e->getMessage();
+}
+
+var_dump($suggestedDomains);
 ```
 
-and you are done!
+```
+array(4) {
+  [0] =>
+  string(14) "example.online"
+  [1] =>
+  string(10) "example.pt"
+  [2] =>
+  string(12) "example.site"
+  [3] =>
+  string(15) "example.website"
+}
+```
 
 
-Getting API Key and Reseller ID
-===============================
+This library support multiple provider and easily extensible.
 
-1. Log in to your domain reseller panel
-2. From main navigation **settings -> API**
-3. In **Accessing the API** section you will get your API Key (i.e: QAiqhfakiAIRj29AKA3jalAkfjqiwladkfj).
-4. Click on the main domain reseller panel's top-right **User** icon and click **Manage profile**.
-5. From the **Reseller profile details** table you will get your **Reseller ID** (i.e: 123456)
+### Supported Domain Reseller API Provider
 
-Domain reseller API in PHP - This API is only usable for NetEarthOne domain resellers.
+- [NetEarth One](https://www.netearthone.com)
+- NameCheap (Coming Soon)
+- ResellerClub (Coming Soon)
 
-Report Bugs, Issues, Proposals
-==============================
-If you get any Bug or face any issue of if you have something to propose for the future development of this library. Please [submit your issue](https://github.com/previewict/domain-reseller-api/issues) here.
+Please suggest us with any domain reseller api provider that you want by creating a [feature request](https://github.com/PreviewTechnologies/domain-reseller-api/issues/new).
 
-License
-=============
+### Features
+- Customers
+  - Creating Customers
+  - Get Customer Details
+  - Update Customer Information
+  - Search Customers
+  
+- Domains
+  - Availability Check
+  - Name Suggestions
+  
+More features are coming soon!
+
+### Support
+
+- [Issue Tracker](https://github.com/PreviewTechnologies/domain-reseller-api/issues/new)
+
+If you find any bug/issues please create an issue from GitHub issue tracker.
+
+### Contributions
+
+This library can be easily extensible. If you want to contribute in this library you are always welcome. To contribute,
+please see current issues and fix them or you can directly add new providers by implementing `ProviderInterface` interface.
+
+[Fork](https://github.com/PreviewTechnologies/domain-reseller-api/fork) this repository and send us pull request and we will be happy to merge that after verifying.
+
+See our current [list of amazing contributors](https://github.com/PreviewTechnologies/domain-reseller-api/graphs/contributors)
+
+### License
+
 The MIT License (MIT)
 
 Copyright (c) 2014 Domain Reseller API
@@ -71,9 +110,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-
-Contributors
-=============
-
-[List of our great contributors](https://github.com/previewict/domain-reseller-api/graphs/contributors)
