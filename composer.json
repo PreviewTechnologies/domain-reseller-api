@@ -8,6 +8,7 @@
             "email": "shaharia.azam@gmail.com"
         }
     ],
+    "license": "MIT",
     "require": {
         "php": ">=5.5",
         "guzzle/guzzle": "3.7.*@dev",
