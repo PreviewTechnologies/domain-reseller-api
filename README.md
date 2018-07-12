@@ -6,7 +6,7 @@ This will perform all the operation to register domain, check domain, WHOIS look
 Install this library with composer by running the following command
 
 ```
-composer require previewtechs/domain-reseller-api
+composer require previewtechs/domain-reseller-api:dev-master
 ```
 
 Now just add the following code in your PHP script where you will use this library.
