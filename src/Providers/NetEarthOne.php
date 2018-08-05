@@ -299,7 +299,7 @@ class NetEarthOne implements ProviderInterface
         $result = $this->sendRequest('GET', '/domains/available.json', ['domain-name' => $domainName, 'tlds' => $extensions]);
 
         if (is_array($result)) {
-            $data = array_values($result);
+            $data = reset(array_values($result));
             if (!empty($data['status']) && $data['status'] === "available") {
                 return true;
             } elseif (!empty($data['status']) && $data['status'] === "regthroughothers") {
