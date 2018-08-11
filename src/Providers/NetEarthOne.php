@@ -4,7 +4,9 @@ namespace PreviewTechs\DomainReseller\Providers;
 
 use GuzzleHttp\Psr7\Request;
 use Http\Adapter\Guzzle6\Client;
+use Http\Client\Exception;
 use PreviewTechs\DomainReseller\Entity\Address;
+use PreviewTechs\DomainReseller\Entity\Contact;
 use PreviewTechs\DomainReseller\Entity\Customer;
 use PreviewTechs\DomainReseller\Entity\Domain;
 use PreviewTechs\DomainReseller\Exceptions\ProviderExceptions;
@@ -75,6 +77,9 @@ class NetEarthOne implements ProviderInterface
         $data = null;
 
         if (strpos($response->getHeaderLine("Content-Type"), "text/xml") === 0) {
+            $xml = simplexml_load_string((string)$response->getBody());
+            $data = json_decode(json_encode($xml), TRUE);
+        }elseif (strpos($response->getHeaderLine("Content-Type"), "application/xml") === 0) {
             $xml = simplexml_load_string((string)$response->getBody());
             $data = json_decode(json_encode($xml), TRUE);
         } elseif (strpos($response->getHeaderLine("Content-Type"), "application/json") === 0) {
@@ -177,31 +182,36 @@ class NetEarthOne implements ProviderInterface
 
         $customer->setEmailAddress($customerData['useremail']);
 
-        if (!empty($customerData['mobileno'])) {
-            !empty($customerData['telnocc']) ? $customer->setMobileCountryCode(intval($customerData['telnocc'])) : null;
-            $customer->setMobile(intval($customerData['mobileno']));
-        }
-
-        if (!empty($customerData['telno'])) {
-            !empty($customerData['telnocc']) ? $customer->setTelephoneCountryCode(intval($customerData['telnocc'])) : null;
-            $customer->setTelephone(intval($customerData['telno']));
-        }
-
-        if (!empty($customerData['faxno'])) {
-            !empty($customerData['faxnocc']) ? $customer->setFaxCountryCode(intval($customerData['faxnocc'])) : null;
-            $customer->setFax(intval($customerData['faxno']));
-        }
-
         if (!empty($customerData['pin'])) {
             $customer->setPin($customerData['pin']);
         }
 
         $address = new Address();
         $address->setPrimaryStreet($customerData['address1']);
-        $address->setSecondaryStreet($customerData['address2']);
+
+        if(!empty($customerData['address2'])){
+            $address->setSecondaryStreet($customerData['address2']);
+        }
+
         $address->setCity($customerData['city']);
         $address->setState($customerData['state']);
         $address->setZipCode($customerData['zip']);
+
+        if (!empty($customerData['mobileno'])) {
+            !empty($customerData['telnocc']) ? $address->setMobileCountryCode(intval($customerData['telnocc'])) : null;
+            $address->setMobile(intval($customerData['mobileno']));
+        }
+
+        if (!empty($customerData['telno'])) {
+            !empty($customerData['telnocc']) ? $address->setTelephoneCountryCode(intval($customerData['telnocc'])) : null;
+            $address->setTelephone(intval($customerData['telno']));
+        }
+
+        if (!empty($customerData['faxno'])) {
+            !empty($customerData['faxnocc']) ? $address->setFaxCountryCode(intval($customerData['faxnocc'])) : null;
+            $address->setFax(intval($customerData['faxno']));
+        }
+
         $customer->setAddress($address);
 
         return $customer;
@@ -215,6 +225,13 @@ class NetEarthOne implements ProviderInterface
      */
     public function createCustomer(Customer $customer)
     {
+        if($customer->getUsername()){
+            $isAlreadyExists = $this->getCustomer($customer->getUsername());
+            if(!empty($isAlreadyExists)){
+                return $isAlreadyExists;
+            }
+        }
+
         $params = [
             'username' => $customer->getUsername(),
             'name' => $customer->getName(),
@@ -224,11 +241,19 @@ class NetEarthOne implements ProviderInterface
             'state' => $customer->getAddress()->getState(),
             'country' => $customer->getAddress()->getCountry(),
             'zipcode' => $customer->getAddress()->getZipCode(),
-            'phone-cc' => $customer->getTelephoneCountryCode(),
+            'phone-cc' => $customer->getAddress()->getTelephoneCountryCode(),
             'lang-pref' => $customer->getLanguage(),
             'passwd' => $customer->getPassword(),
-            'phone' => $customer->getTelephone()
+            'phone' => $customer->getAddress()->getTelephone()
         ];
+
+        $requiredFields = ["username", "name", "company", "address-line-1", "city", "state", "country", "zipcode", "phone-cc", "lang-pref", "phone", "passwd"];
+        foreach ($requiredFields as $requiredField){
+            if(empty($requiredField)){
+                throw new ProviderExceptions(sprintf("`%s` field value required", $requiredField));
+            }
+        }
+
         $data = $this->sendRequest("POST", "/customers/v2/signup.xml", $params);
 
         $customer->setPassword(null);
@@ -273,9 +298,9 @@ class NetEarthOne implements ProviderInterface
             'state' => $customer->getAddress()->getState(),
             'country' => $customer->getAddress()->getCountry(),
             'zipcode' => $customer->getAddress()->getZipCode(),
-            'phone-cc' => $customer->getTelephoneCountryCode(),
+            'phone-cc' => $customer->getAddress()->getTelephoneCountryCode(),
             'lang-pref' => $customer->getLanguage(),
-            'phone' => $customer->getTelephone()
+            'phone' => $customer->getAddress()->getTelephone()
         ];
         $data = $this->sendRequest("POST", "/customers/modify.json", $params);
 
@@ -327,5 +352,75 @@ class NetEarthOne implements ProviderInterface
         }
 
         return array_keys($results);
+    }
+
+    protected function addContact($customerId, Contact $contact)
+    {
+        if(!empty($contact->getId())){
+            return $contact;
+        }
+
+        $queryParams = [
+            'name' => $contact->getName(),
+            'customer-id' => $customerId,
+            'company' => $contact->getCompany(),
+            'email' => $contact->getEmail(),
+            'address-line-1' => $contact->getAddress()->getPrimaryStreet(),
+            'address-line-2' => $contact->getAddress()->getSecondaryStreet(),
+            'city' => $contact->getAddress()->getCity(),
+            'state' => $contact->getAddress()->getState(),
+            'country' => $contact->getAddress()->getCountry(),
+            'zipcode' => $contact->getAddress()->getZipCode(),
+            'phone-cc' => $contact->getAddress()->getTelephoneCountryCode(),
+            'phone' => $contact->getAddress()->getTelephone(),
+            'fax-cc' => $contact->getAddress()->getFaxCountryCode(),
+            'fax' => $contact->getAddress()->getFax(),
+            'type' => $contact->getType()
+        ];
+
+        $results = $this->sendRequest("GET", "/contacts/add.json", $queryParams);
+        if(is_int($results)){
+            $contact->setId($results);
+            return $contact;
+        }
+
+        return null;
+    }
+
+    public function registerDomain($domainName, Customer $customer, Contact $registrantContact = null, Contact $administrativeContact = null, Contact $technicalContact = null, Contact $billingContact = null, array $options = [])
+    {
+        if(empty($options['ns'])){
+            throw new ProviderExceptions("options[ns] value must be provided to register domain");
+        }
+
+        $customerId = $customer->getId();
+        if(empty($customer->getId())){
+            $customer = $this->createCustomer($customer);
+            $customerId = $customer->getId();
+        }
+
+        $registrantContactId = $this->addContact($customerId, $registrantContact);
+        $administrativeContactId = $this->addContact($customerId, $administrativeContact);
+        $technicalContactId = $this->addContact($customerId, $technicalContact);
+        $billingContactId = $this->addContact($customerId, $billingContact);
+
+        $queryParams = [
+            "domain-name" => $domainName,
+            "years" => !empty($options['years']) ? intval($options['years']) : 1,
+            'ns' => $options['ns'],
+            'customer-id' => $customerId,
+            'reg-contact-id' => $registrantContactId->getId(),
+            'admin-contact-id' => $administrativeContactId->getId(),
+            'tech-contact-id' => $technicalContactId->getId(),
+            'billing-contact-id' => $billingContactId->getId(),
+            'invoice-option' => !empty($options['invoice-option']) ? $options['invoice-option'] : "PayInvoice",
+            "purchase-privacy" => !empty($options['purchase-privacy']) ? $options['purchase-privacy'] : false,
+            'protect-privacy' => !empty($options['protect-privacy']) ? $options['protect-privacy'] : false,
+            'auto-renew' => !empty($options['auto-renew']) ? $options['auto-renew'] : false
+        ];
+
+        $result = $this->sendRequest("GET", "/domains/register.xml", $queryParams);
+
+        return $result;
     }
 }
