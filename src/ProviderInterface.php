@@ -77,7 +77,15 @@ interface ProviderInterface
      * @param Contact|null $technicalContact
      * @param Contact|null $billingContact
      * @param array $options
-     * @return mixed
+     * @return Domain
      */
     public function registerDomain($domainName, Customer $customer, Contact $registrantContact = null, Contact $administrativeContact = null, Contact $technicalContact = null, Contact $billingContact = null, array $options = []);
+
+    /**
+     * @param $domain
+     * @param array $options
+     * @return Domain
+     * @throws ProviderExceptions
+     */
+    public function domainDetails($domain, array $options = []);
 }

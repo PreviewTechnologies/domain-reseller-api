@@ -49,6 +49,105 @@ array(4) {
 ```
 
 
+### Documentation
+#### Register Domain Name
+```php
+<?php
+
+//Get domain name suggestions
+
+use PreviewTechs\DomainReseller\Domains;
+use PreviewTechs\DomainReseller\Providers\NetEarthOne;
+
+require "vendor/autoload.php";
+
+$domainResellerProvider = new NetEarthOne("NET_EARTH_ONE_API_KEY", "NET_EARTH_ONE_AUTH_ID", true);
+$domain = new Domains($domainResellerProvider);
+
+$customer = new \PreviewTechs\DomainReseller\Entity\Customer();
+$customer->setEmailAddress("email@example.com");
+$customer->setName("Your Name");
+$customer->setUsername("email@example.com");
+$customer->setCompany("Company Name");
+
+$address = new \PreviewTechs\DomainReseller\Entity\Address();
+$address->setPrimaryStreet("Address Line 1");
+$address->setState("State");
+$address->setCity("City");
+$address->setZipCode("ZIP_CODE");
+$address->setCountry("2 DIGIT COUNTRY CODE");
+$address->setTelephone("PHONE_NUMBER");
+$address->setTelephoneCountryCode("TELEPHONE COUNTRY CODE");
+
+$customer->setAddress($address);
+$customer->setPassword("PASSWORD");
+$customer->setLanguage("2 DIGIT LANGUAGE CODE");
+
+$result = $domain->registerDomain("domainname.com", $customer, null,null, null, null, [
+    'ns' => [
+        'ns.yournameserver.com', 
+        'ns2.yournameserver.com'
+    ], 
+    'invoice-option' => 'PayInvoice'
+]);
+
+var_dump($result);
+```
+
+#### Get Domain (order) Details
+```php
+<?php
+$domainDetails = $domain->domainDetails("domainname.com");
+var_dump($domainDetails);
+```
+
+#### Check Domain Availability
+```php
+<?php
+$available = $domain->isAvailable("domainname", "com");
+var_dump($available);
+```
+
+#### Get Name Suggestion
+```php
+<?php
+$suggestions = $domain->getSuggestions("Book Store");
+var_dump($suggestions);
+```
+
+#### Create Customer Account
+```php
+<?php
+$customer = new \PreviewTechs\DomainReseller\Entity\Customer();
+$customer->setEmailAddress("email@example.com");
+$customer->setName("Your Name");
+$customer->setUsername("email@example.com");
+$customer->setCompany("Company Name");
+
+$address = new \PreviewTechs\DomainReseller\Entity\Address();
+$address->setPrimaryStreet("Address Line 1");
+$address->setState("State");
+$address->setCity("City");
+$address->setZipCode("ZIP_CODE");
+$address->setCountry("2 DIGIT COUNTRY CODE");
+$address->setTelephone("PHONE_NUMBER");
+$address->setTelephoneCountryCode("TELEPHONE COUNTRY CODE");
+$customer->setAddress($address);
+$customer->setPassword("PASSWORD");
+$customer->setLanguage("2 DIGIT LANGUAGE CODE");
+
+$customerDetails = $domain->createCustomer($customer);
+var_dump($customerDetails);
+```
+
+#### Get Customer Details
+```php
+<?php
+$customerDetails = $domain->getCustomer("CustomerID");
+var_dump($customerDetails);
+```
+
+
 This library support multiple provider and easily extensible.
 
 ### Supported Domain Reseller API Provider

@@ -5,6 +5,7 @@ namespace PreviewTechs\DomainReseller;
 
 use PreviewTechs\DomainReseller\Entity\Contact;
 use PreviewTechs\DomainReseller\Entity\Customer;
+use PreviewTechs\DomainReseller\Entity\Domain;
 
 class Domains
 {
@@ -59,6 +60,17 @@ class Domains
     }
 
     /**
+     * @param $customerIdentififer
+     * @return Customer
+     * @throws Exceptions\ProviderExceptions
+     * @throws \Http\Client\Exception
+     */
+    public function getCustomer($customerIdentififer)
+    {
+        return $this->provider->getCustomer($customerIdentififer);
+    }
+
+    /**
      * @param $domainName
      * @param Customer $customer
      * @param Contact $registrantContact
@@ -66,10 +78,21 @@ class Domains
      * @param Contact $technicalContact
      * @param Contact $billingContact
      * @param array $options
-     * @return mixed
+     * @return Domain
      */
     public function registerDomain($domainName, Customer $customer, Contact $registrantContact = null, Contact $administrativeContact = null, Contact $technicalContact = null, Contact $billingContact = null, array $options = [])
     {
         return $this->provider->registerDomain($domainName, $customer, $registrantContact, $administrativeContact, $technicalContact, $billingContact, $options);
+    }
+
+    /**
+     * @param $domainName
+     * @param array $options
+     * @return Domain
+     * @throws Exceptions\ProviderExceptions
+     */
+    public function domainDetails($domainName, array $options = [])
+    {
+        return $this->provider->domainDetails($domainName, $options);
     }
 }

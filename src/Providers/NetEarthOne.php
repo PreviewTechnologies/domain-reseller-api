@@ -2,6 +2,7 @@
 
 namespace PreviewTechs\DomainReseller\Providers;
 
+use DateTime;
 use GuzzleHttp\Psr7\Request;
 use Http\Adapter\Guzzle6\Client;
 use Http\Client\Exception;
@@ -64,11 +65,11 @@ class NetEarthOne implements ProviderInterface
      * @throws ProviderExceptions
      * @throws \Http\Client\Exception
      */
-    public function sendRequest($method = "GET", $path, $params = null)
+    protected function sendRequest($method = "GET", $path, $params = null)
     {
         $params = array_merge(['auth-userid' => $this->authUserId, 'api-key' => $this->apiKey], $params);
 
-        $requestUrl = $this->apiEndpoint . $path . "?" . http_build_query($params);
+        $requestUrl = $this->apiEndpoint . $path . "?" . $this->query_builder($params);
 
         $request = new Request($method, $requestUrl);
 
@@ -93,6 +94,18 @@ class NetEarthOne implements ProviderInterface
         }
 
         return $data;
+    }
+
+    protected function query_builder($a,$b=0,$c=0){
+        if (!is_array($a)) return false;
+        foreach ((array)$a as $k=>$v){
+            if ($c) $k=$b.""; elseif (is_int($k)) $k=$b.$k;
+            if (is_array($v)||is_object($v)) {
+                $r[]=$this->query_builder($v,$k,1);continue;
+            }
+            $r[]=urlencode($k)."=" .urlencode($v);
+        }
+        return implode("&",$r);
     }
 
     /**
@@ -226,7 +239,12 @@ class NetEarthOne implements ProviderInterface
     public function createCustomer(Customer $customer)
     {
         if($customer->getUsername()){
-            $isAlreadyExists = $this->getCustomer($customer->getUsername());
+            try {
+                $isAlreadyExists = $this->getCustomer($customer->getUsername());
+            } catch (Exception $e) {
+            } catch (ProviderExceptions $e) {
+            }
+
             if(!empty($isAlreadyExists)){
                 return $isAlreadyExists;
             }
@@ -267,6 +285,8 @@ class NetEarthOne implements ProviderInterface
                 $customer->setId(intval($matches[0][1]));
                 return $customer;
             }
+        }else{
+            $customer->setId(intval($data[0]));
         }
 
         if (empty($customer->getId())) {
@@ -324,7 +344,8 @@ class NetEarthOne implements ProviderInterface
         $result = $this->sendRequest('GET', '/domains/available.json', ['domain-name' => $domainName, 'tlds' => $extensions]);
 
         if (is_array($result)) {
-            $data = reset(array_values($result));
+            $result = array_values($result);
+            $data = reset($result);
             if (!empty($data['status']) && $data['status'] === "available") {
                 return true;
             } elseif (!empty($data['status']) && $data['status'] === "regthroughothers") {
@@ -387,10 +408,110 @@ class NetEarthOne implements ProviderInterface
         return null;
     }
 
+    /**
+     * @param $customerId
+     * @param string $type
+     * @param $registrantContactId
+     * @param $technicalContactId
+     * @param $billingContactId
+     * @param $adminContactId
+     * @return array|bool
+     * @throws Exception
+     * @throws ProviderExceptions
+     */
+    protected function setDefaultContacts($customerId, $type = "Contact", $registrantContactId, $technicalContactId, $billingContactId, $adminContactId)
+    {
+        $params = [
+            'customer-id' => $customerId,
+            'reg-contact-id' => $registrantContactId,
+            'admin-contact-id' => $adminContactId,
+            'tech-contact-id' => $technicalContactId,
+            'billing-contact-id' => $billingContactId,
+            'type' => $type
+        ];
+
+        $result = $this->sendRequest("POST", "/contacts/modDefault.json", $params);
+        if(empty($result)){
+            return false;
+        }
+
+        return $params;
+    }
+
+    /**
+     * @param $customerId
+     * @param string $type
+     * @return bool|mixed
+     * @throws Exception
+     * @throws ProviderExceptions
+     */
+    protected function getDefaultContacts($customerId, $type = "Contact")
+    {
+        $params = [
+            'customer-id' => $customerId,
+            'type' => $type
+        ];
+
+        $result = $this->sendRequest("GET", "/contacts/default.json", $params);
+
+        if(empty($result) || !array_key_exists("Contact", $result)){
+            return false;
+        }
+
+        $contacts = [
+            'registrant' => !empty($result['Contact']['registrant']) ? intval($result['Contact']['registrant']) : null,
+            'technical' => !empty($result['Contact']['tech']) ? intval($result['Contact']['tech']) : null,
+            'billing' => !empty($result['Contact']['billing']) ? intval($result['Contact']['billing']) : null,
+            'administrative' => !empty($result['Contact']['admin']) ? intval($result['Contact']['admin']) : null,
+        ];
+
+        /*foreach ($result['Contact'] as $item => $value){
+            if(is_array($value)){
+                $tc = new Contact();
+                $tc->setId($value['contact.contactid']);
+                $tc->setCompany($value['contact.company']);
+                $tc->setName($value['contact.name']);
+                $tc->setEmail($value['contact.emailaddr']);
+                $tc->setType($value['contact.type']);
+
+                $address = new Address();
+                $address->setTelephoneCountryCode($value['contact.telnocc']);
+                $address->setTelephone($value['contact.telno']);
+                $address->setPrimaryStreet($value['contact.address1']);
+                $address->setCity($value['contact.city']);
+                $address->setState($value['contact.state']);
+                $address->setZipCode($value['contact.zip']);
+                $address->setCountry($value['contact.country']);
+                $tc->setAddress($address);
+                $contacts[$item] = $tc;
+            }
+        }*/
+
+        return $contacts;
+    }
+
+    /**
+     * @param $domainName
+     * @param Customer $customer
+     * @param Contact|null $registrantContact
+     * @param Contact|null $administrativeContact
+     * @param Contact|null $technicalContact
+     * @param Contact|null $billingContact
+     * @param array $options
+     * @return Domain
+     * @throws Exception
+     * @throws ProviderExceptions
+     */
     public function registerDomain($domainName, Customer $customer, Contact $registrantContact = null, Contact $administrativeContact = null, Contact $technicalContact = null, Contact $billingContact = null, array $options = [])
     {
         if(empty($options['ns'])){
             throw new ProviderExceptions("options[ns] value must be provided to register domain");
+        }
+
+        if(!empty($options['invoice-option'])){
+            if(!in_array($options['invoice-option'], ['PayInvoice', 'NoInvoice', 'KeepInvoice', 'OnlyAdd'])){
+                throw new ProviderExceptions("Invalid `options[invoice-option]` value. Accepted values are: PayInvoice, NoInvoice, KeepInvoice, OnlyAdd");
+            }
         }
 
         $customerId = $customer->getId();
@@ -399,10 +520,32 @@ class NetEarthOne implements ProviderInterface
             $customerId = $customer->getId();
         }
 
-        $registrantContactId = $this->addContact($customerId, $registrantContact);
-        $administrativeContactId = $this->addContact($customerId, $administrativeContact);
-        $technicalContactId = $this->addContact($customerId, $technicalContact);
-        $billingContactId = $this->addContact($customerId, $billingContact);
+        $defaultContacts = $this->getDefaultContacts($customerId);
+
+        if(!$registrantContact && empty($defaultContacts['registrant'])){
+            throw new ProviderExceptions("You must provide registrant contact information");
+        }
+
+        if(!$administrativeContact && empty($defaultContacts['administrative'])){
+            throw new ProviderExceptions("You must provide administrative contact information");
+        }
+
+        if(!$billingContact && empty($defaultContacts['billing'])){
+            throw new ProviderExceptions("You must provide billing contact information");
+        }
+
+        if(!$technicalContact && empty($defaultContacts['technical'])){
+            throw new ProviderExceptions("You must provide technical contact information");
+        }
+
+        $registrantContactId = !empty($registrantContact) ? $this->addContact($customerId, $registrantContact) : (new Contact())->setId($defaultContacts['registrant']);
+        $administrativeContactId = !empty($administrativeContact) ? $this->addContact($customerId, $administrativeContact) : (new Contact())->setId($defaultContacts['administrative']);
+        $technicalContactId = !empty($technicalContact) ? $this->addContact($customerId, $technicalContact) : (new Contact())->setId($defaultContacts['technical']);
+        $billingContactId = !empty($billingContact) ? $this->addContact($customerId, $billingContact) : (new Contact())->setId($defaultContacts['billing']);
+
+        if(!$defaultContacts || !$defaultContacts['technical'] || !$defaultContacts['billing'] || !$defaultContacts['registrant'] || !$defaultContacts['administrative']){
+            $this->setDefaultContacts($customerId, 'Contact', $registrantContactId->getId(), $technicalContactId->getId(), $billingContactId->getId(), $administrativeContactId->getId());
+        }
 
         $queryParams = [
             "domain-name" => $domainName,
@@ -414,13 +557,224 @@ class NetEarthOne implements ProviderInterface
             'tech-contact-id' => $technicalContactId->getId(),
             'billing-contact-id' => $billingContactId->getId(),
             'invoice-option' => !empty($options['invoice-option']) ? $options['invoice-option'] : "PayInvoice",
-            "purchase-privacy" => !empty($options['purchase-privacy']) ? $options['purchase-privacy'] : false,
-            'protect-privacy' => !empty($options['protect-privacy']) ? $options['protect-privacy'] : false,
-            'auto-renew' => !empty($options['auto-renew']) ? $options['auto-renew'] : false
+            "purchase-privacy" => !empty($options['purchase-privacy']) ? boolval($options['purchase-privacy']) : false,
+            'protect-privacy' => !empty($options['protect-privacy']) ? boolval($options['protect-privacy']) : false,
+            'auto-renew' => !empty($options['auto-renew']) ? boolval($options['auto-renew']) : false
         ];
 
         $result = $this->sendRequest("GET", "/domains/register.xml", $queryParams);
 
-        return $result;
+        if(!array_key_exists("entry", $result)){
+            throw new ProviderExceptions("Unknown error occured. Error: " . json_encode($result));
+        }
+
+        $output = [];
+        foreach ($result['entry'] as $item){
+            $output[$item['string'][0]] = $item['string'][1];
+        }
+
+        if($output['status'] === "error"){
+            throw new ProviderExceptions($output['error']);
+        }
+
+        $refinedOutput = [
+            'orderId' => $output['entityid'],
+            'status' => $output['status'] === "Success" ? "success" : null,
+            'domain' => $domainName
+        ];
+
+        if(!empty($output['actionstatus'])){
+            $refinedOutput['actionStatus'] = $output['actionstatus'] === "Success" ? "success" : strtolower($output['actionstatus']);
+        }
+
+        if(!empty($output['eaqid'])){
+            $refinedOutput['privacyProtectionPurchaseActionId'] = $output['eaqid'];
+        }
+
+        if(!empty($output['customerid'])){
+            $refinedOutput['customerId'] = $output['customerid'];
+        }
+
+        if(!empty($output['invoiceid'])){
+            $refinedOutput['invoiceId'] = $output['invoiceid'];
+        }
+
+        if(!empty($output['sellingcurrencysymbol'])){
+            $refinedOutput['sellingCurrency'] = $output['sellingcurrencysymbol'];
+        }
+
+        if(!empty($output['sellingamount'])){
+            $refinedOutput['sellingAmount'] = $output['sellingamount'];
+        }
+
+        if(!empty($output['pendingamount'])){
+            $refinedOutput['pendingAmount'] = $output['pendingamount'];
+        }
+
+        return $this->domainDetails($domainName);
+    }
+
+    /**
+     * @param $domain
+     * @param array $options
+     * @return \PreviewTechs\DomainReseller\Entity\Domain
+     * @throws Exception
+     * @throws ProviderExceptions
+     */
+    public function domainDetails($domain, array $options = [])
+    {
+        $queryParams = [
+            'domain-name' => $domain,
+            'options' => "All"
+        ];
+
+        $result = $this->sendRequest("GET", "/domains/details-by-name.json", $queryParams);
+
+        if(empty($result['domainname'])){
+            throw new ProviderExceptions("Domain not found");
+        }
+
+        $domain = new \PreviewTechs\DomainReseller\Entity\Domain();
+        $order = new \PreviewTechs\DomainReseller\Entity\DomainOrder();
+
+        $domain->setName($result['domainname']);
+
+        if(!empty($result['creationtime'])){
+            $createdAt = DateTime::createFromFormat(DATE_ATOM, date(DATE_ATOM, $result['creationtime']));
+            $domain->setCreatedAt($createdAt);
+        }
+
+        if(!empty($result['endtime'])){
+            $expirationTime = DateTime::createFromFormat(DATE_ATOM, date(DATE_ATOM, $result['endtime']));
+            $domain->setExpirationDate($expirationTime);
+        }
+
+        $domain->setCurrentStatus($result['currentstatus']);
+
+        if(!empty($result['domsecret'])){
+            $domain->setDomainSecret($result['domsecret']);
+        }
+
+        if(!empty($result['domainstatus'])){
+            $domain->setStatus($result['domainstatus']);
+        }
+
+        $noOfNS = intval($result['noOfNameServers']);
+        for($i=1; $i <= $noOfNS; $i++){
+            $nameServers[$i] = $result['ns' . $i];
+        }
+        $domain->setNameServers($nameServers);
+
+        if(!empty($result['raaVerificationStatus'])) {
+            $domain->setRegistrantContactEmailVerificationStatus($result['raaVerificationStatus']);
+        }
+
+        if(!empty($result['raaVerificationStartTime'])){
+            $raaVerificationStartTime = DateTime::createFromFormat(DATE_ATOM, date(DATE_ATOM, $result['raaVerificationStartTime']));
+            $domain->setRegistrantContactEmailVerificationTime($raaVerificationStartTime);
+        }
+
+        $registrantContact = new Contact();
+        $registrantContact->setCompany($result['registrantcontact']['company']);
+        $registrantContact->setName($result['registrantcontact']['name']);
+        $registrantContact->setEmail($result['registrantcontact']['emailaddr']);
+        $registrantContact->setType($result['registrantcontact']['type']);
+        $registrantContact->setCustomerId($result['registrantcontact']['customerid']);
+        $registrantContact->setId($result['registrantcontact']['contactid']);
+
+        $registrantContactAddress = new Address();
+        $registrantContactAddress->setPrimaryStreet($result['registrantcontact']['address1']);
+        $registrantContactAddress->setTelephone($result['registrantcontact']['telno']);
+        $registrantContactAddress->setTelephoneCountryCode($result['registrantcontact']['telnocc']);
+        $registrantContactAddress->setCountry($result['registrantcontact']['country']);
+        $registrantContactAddress->setState($result['registrantcontact']['state']);
+        $registrantContactAddress->setCity($result['registrantcontact']['city']);
+        $registrantContactAddress->setZipCode($result['registrantcontact']['zip']);
+        $registrantContact->setAddress($registrantContactAddress);
+        $domain->setRegistrantContact($registrantContact);
+
+        $adminContact = new Contact();
+        $adminContact->setCompany($result['admincontact']['company']);
+        $adminContact->setName($result['admincontact']['name']);
+        $adminContact->setEmail($result['admincontact']['emailaddr']);
+        $adminContact->setType($result['admincontact']['type']);
+        $adminContact->setCustomerId($result['admincontact']['customerid']);
+        $adminContact->setId($result['admincontact']['contactid']);
+
+        $adminContactAddress = new Address();
+        $adminContactAddress->setPrimaryStreet($result['admincontact']['address1']);
+        $adminContactAddress->setTelephone($result['admincontact']['telno']);
+        $adminContactAddress->setTelephoneCountryCode($result['admincontact']['telnocc']);
+        $adminContactAddress->setCountry($result['admincontact']['country']);
+        $adminContactAddress->setState($result['admincontact']['state']);
+        $adminContactAddress->setCity($result['admincontact']['city']);
+        $adminContactAddress->setZipCode($result['admincontact']['zip']);
+        $adminContact->setAddress($adminContactAddress);
+        $domain->setAdministrativeContact($adminContact);
+
+        $techContact = new Contact();
+        $techContact->setCompany($result['techcontact']['company']);
+        $techContact->setName($result['techcontact']['name']);
+        $techContact->setEmail($result['techcontact']['emailaddr']);
+        $techContact->setType($result['techcontact']['type']);
+        $techContact->setCustomerId($result['techcontact']['customerid']);
+        $techContact->setId($result['techcontact']['contactid']);
+
+        $techContactAddress = new Address();
+        $techContactAddress->setPrimaryStreet($result['techcontact']['address1']);
+        $techContactAddress->setTelephone($result['techcontact']['telno']);
+        $techContactAddress->setTelephoneCountryCode($result['techcontact']['telnocc']);
+        $techContactAddress->setCountry($result['techcontact']['country']);
+        $techContactAddress->setState($result['techcontact']['state']);
+        $techContactAddress->setCity($result['techcontact']['city']);
+        $techContactAddress->setZipCode($result['techcontact']['zip']);
+        $techContact->setAddress($techContactAddress);
+        $domain->setTechnicalContact($techContact);
+
+        $billingContact = new Contact();
+        $billingContact->setCompany($result['billingcontact']['company']);
+        $billingContact->setName($result['billingcontact']['name']);
+        $billingContact->setEmail($result['billingcontact']['emailaddr']);
+        $billingContact->setType($result['billingcontact']['type']);
+        $billingContact->setCustomerId($result['billingcontact']['customerid']);
+        $billingContact->setId($result['billingcontact']['contactid']);
+
+        $billingContactAddress = new Address();
+        $billingContactAddress->setPrimaryStreet($result['billingcontact']['address1']);
+        $billingContactAddress->setTelephone($result['billingcontact']['telno']);
+        $billingContactAddress->setTelephoneCountryCode($result['billingcontact']['telnocc']);
+        $billingContactAddress->setCountry($result['billingcontact']['country']);
+        $billingContactAddress->setState($result['billingcontact']['state']);
+        $billingContactAddress->setCity($result['billingcontact']['city']);
+        $billingContactAddress->setZipCode($result['billingcontact']['zip']);
+        $billingContact->setAddress($billingContactAddress);
+        $domain->setBillingContact($billingContact);
+
+
+        $order->setId($result['orderid']);
+        if(!empty($result['actionstatus'])){
+            $order->setActionStatus($result['actionstatus']);
+        }
+
+        if(!empty($result['actionstatusdesc'])){
+            $order->setActionStatusDescription($result['actionstatusdesc']);
+        }
+
+        $order->setAllowedDeletion((bool) $result['allowdeletion']);
+        $order->setIsOrderSuspendedUponExpiry((bool) $result['isOrderSuspendedUponExpiry']);
+        $order->setOrderSuspendedByParent((bool) $result['orderSuspendedByParent']);
+        $order->setProductKey($result['productkey']);
+        $order->setProductCategory($result['productcategory']);
+        $order->setCustomerCost((double) $result['customercost']);
+        $order->setClassName($result['classname']);
+        $order->setStatus($result['orderstatus']);
+
+        $customer = $this->getCustomer($result['customerid']);
+        $domain->setCustomer($customer);
+        $order->setCustomer($customer);
+
+        $domain->setOrder($order);
+
+        return $domain;
     }
 }
