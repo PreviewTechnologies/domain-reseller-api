@@ -36,9 +36,39 @@ class Address
     public $country;
 
     /**
+     * @var integer
+     */
+    public $telephone;
+
+    /**
      * @var int
      */
-    public $zipCode;
+    public $telephoneCountryCode;
+
+    /**
+     * @var int
+     */
+    public $telephoneExtension;
+
+    /**
+     * @var int
+     */
+    public $mobile;
+
+    /**
+     * @var int
+     */
+    public $mobileCountryCode;
+
+    /**
+     * @var int
+     */
+    public $fax;
+
+    /**
+     * @var int
+     */
+    public $faxCountryCode;
 
     /**
      * @return null|string
@@ -163,6 +193,132 @@ class Address
     public function setZipCode($zipCode)
     {
         $this->zipCode = $zipCode;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTelephone()
+    {
+        return $this->telephone;
+    }
+
+    /**
+     * @param int $telephone
+     * @return Address
+     */
+    public function setTelephone($telephone)
+    {
+        $this->telephone = $telephone;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTelephoneCountryCode()
+    {
+        return $this->telephoneCountryCode;
+    }
+
+    /**
+     * @param int $telephoneCountryCode
+     * @return Address
+     */
+    public function setTelephoneCountryCode($telephoneCountryCode)
+    {
+        $this->telephoneCountryCode = $telephoneCountryCode;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTelephoneExtension()
+    {
+        return $this->telephoneExtension;
+    }
+
+    /**
+     * @param int $telephoneExtension
+     * @return Address
+     */
+    public function setTelephoneExtension($telephoneExtension)
+    {
+        $this->telephoneExtension = $telephoneExtension;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMobile()
+    {
+        return $this->mobile;
+    }
+
+    /**
+     * @param int $mobile
+     * @return Address
+     */
+    public function setMobile($mobile)
+    {
+        $this->mobile = $mobile;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMobileCountryCode()
+    {
+        return $this->mobileCountryCode;
+    }
+
+    /**
+     * @param int $mobileCountryCode
+     * @return Address
+     */
+    public function setMobileCountryCode($mobileCountryCode)
+    {
+        $this->mobileCountryCode = $mobileCountryCode;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFax()
+    {
+        return $this->fax;
+    }
+
+    /**
+     * @param int $fax
+     * @return Address
+     */
+    public function setFax($fax)
+    {
+        $this->fax = $fax;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFaxCountryCode()
+    {
+        return $this->faxCountryCode;
+    }
+
+    /**
+     * @param int $faxCountryCode
+     * @return Address
+     */
+    public function setFaxCountryCode($faxCountryCode)
+    {
+        $this->faxCountryCode = $faxCountryCode;
         return $this;
     }
 }

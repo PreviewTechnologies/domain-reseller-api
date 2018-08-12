@@ -46,41 +46,6 @@ class Customer
     public $status;
 
     /**
-     * @var integer
-     */
-    public $telephone;
-
-    /**
-     * @var int
-     */
-    public $telephoneCountryCode;
-
-    /**
-     * @var int
-     */
-    public $telephoneExtension;
-
-    /**
-     * @var int
-     */
-    public $mobile;
-
-    /**
-     * @var int
-     */
-    public $mobileCountryCode;
-
-    /**
-     * @var int
-     */
-    public $fax;
-
-    /**
-     * @var int
-     */
-    public $faxCountryCode;
-
-    /**
      * @var string|int
      */
     public $pin;
@@ -348,78 +313,6 @@ class Customer
     public function setTwoFactorAuthEnabled($twoFactorAuthEnabled)
     {
         $this->twoFactorAuthEnabled = $twoFactorAuthEnabled;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getTelephoneCountryCode()
-    {
-        return $this->telephoneCountryCode;
-    }
-
-    /**
-     * @param int $telephoneCountryCode
-     * @return Customer
-     */
-    public function setTelephoneCountryCode($telephoneCountryCode)
-    {
-        $this->telephoneCountryCode = $telephoneCountryCode;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getTelephoneExtension()
-    {
-        return $this->telephoneExtension;
-    }
-
-    /**
-     * @param int $telephoneExtension
-     * @return Customer
-     */
-    public function setTelephoneExtension($telephoneExtension)
-    {
-        $this->telephoneExtension = $telephoneExtension;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getMobileCountryCode()
-    {
-        return $this->mobileCountryCode;
-    }
-
-    /**
-     * @param int $mobileCountryCode
-     * @return Customer
-     */
-    public function setMobileCountryCode($mobileCountryCode)
-    {
-        $this->mobileCountryCode = $mobileCountryCode;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getFaxCountryCode()
-    {
-        return $this->faxCountryCode;
-    }
-
-    /**
-     * @param int $faxCountryCode
-     * @return Customer
-     */
-    public function setFaxCountryCode($faxCountryCode)
-    {
-        $this->faxCountryCode = $faxCountryCode;
         return $this;
     }
 

@@ -3,6 +3,7 @@
 namespace PreviewTechs\DomainReseller;
 
 
+use PreviewTechs\DomainReseller\Entity\Contact;
 use PreviewTechs\DomainReseller\Entity\Customer;
 use PreviewTechs\DomainReseller\Entity\Domain;
 use PreviewTechs\DomainReseller\Exceptions\ProviderExceptions;
@@ -67,4 +68,24 @@ interface ProviderInterface
      * @throws \Http\Client\Exception
      */
     public function getSuggestions($keyWord, $tld = null, $exactMatch = false);
+
+    /**
+     * @param $domainName
+     * @param Customer $customer
+     * @param Contact|null $registrantContact
+     * @param Contact|null $administrativeContact
+     * @param Contact|null $technicalContact
+     * @param Contact|null $billingContact
+     * @param array $options
+     * @return Domain
+     */
+    public function registerDomain($domainName, Customer $customer, Contact $registrantContact = null, Contact $administrativeContact = null, Contact $technicalContact = null, Contact $billingContact = null, array $options = []);
+
+    /**
+     * @param $domain
+     * @param array $options
+     * @return Domain
+     * @throws ProviderExceptions
+     */
+    public function domainDetails($domain, array $options = []);
 }
