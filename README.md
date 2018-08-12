@@ -153,8 +153,14 @@ This library support multiple provider and easily extensible.
 ### Supported Domain Reseller API Provider
 
 - [NetEarth One](https://www.netearthone.com)
+  
+  Provider Class: `PreviewTechs\DomainReseller\Providers\NetEarthOne`
+  
+- [ResellerClub](https://www.resellerclub.com)
+
+  Provider Class: `\PreviewTechs\DomainReseller\Providers\ResellerClub`
+  
 - NameCheap (Coming Soon)
-- ResellerClub (Coming Soon)
 
 Please suggest us with any domain reseller api provider that you want by creating a [feature request](https://github.com/PreviewTechnologies/domain-reseller-api/issues/new).
 
