@@ -425,6 +425,14 @@ class Domain
      */
     public function setPrivacyProtected($privacyProtected)
     {
+        if(is_string($privacyProtected)){
+            if($privacyProtected === "false"){
+                $privacyProtected = false;
+            }elseif ($privacyProtected === "true"){
+                $privacyProtected = true;
+            }
+        }
+
         $this->privacyProtected = $privacyProtected;
 
         return $this;
@@ -442,7 +450,7 @@ class Domain
             'registrantContactEmailVerificationTime'   => $this->getRegistrantContactEmailVerificationTime() ? $this->getRegistrantContactEmailVerificationTime()->format("Y-m-d H:i:s") : null,
             'customer'                                 => $this->getCustomer()->toArray(),
             'order'                                    => $this->getOrder()->toArray(),
-            'nameservers'                              => $this->getNameServers(),
+            'nameServers'                              => $this->getNameServers(),
             'childNameServers'                         => $this->getChildNameServers(),
             'domainSecret'                             => $this->getDomainSecret(),
             'currentStatus'                            => $this->getCurrentStatus(),
