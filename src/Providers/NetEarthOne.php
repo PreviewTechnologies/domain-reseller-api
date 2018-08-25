@@ -773,9 +773,9 @@ class NetEarthOne implements ProviderInterface
         $domain->setCustomer($customer);
         $order->setCustomer($customer);
 
-        if(!empty($domain['isprivacyprotected'])){
-            $domain->setPrivacyProtected($domain['isprivacyprotected']);
-            $order->setPrivacyProtected($domain['isprivacyprotected']);
+        if(!empty($result['isprivacyprotected'])){
+            $domain->setPrivacyProtected($result['isprivacyprotected']);
+            $order->setPrivacyProtected($result['isprivacyprotected']);
         }else{
             $domain->setPrivacyProtected(false);
             $order->setPrivacyProtected(false);
