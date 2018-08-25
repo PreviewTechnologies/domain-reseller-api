@@ -111,6 +111,11 @@ class DomainOrder
     public $productCategory;
 
     /**
+     * @var bool
+     */
+    public $privacyProtected;
+
+    /**
      * @return int
      */
     public function getId()
@@ -485,6 +490,26 @@ class DomainOrder
     public function setProductCategory($productCategory)
     {
         $this->productCategory = $productCategory;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPrivacyProtected()
+    {
+        return $this->privacyProtected;
+    }
+
+    /**
+     * @param bool $privacyProtected
+     *
+     * @return DomainOrder
+     */
+    public function setPrivacyProtected($privacyProtected)
+    {
+        $this->privacyProtected = $privacyProtected;
+
         return $this;
     }
 }

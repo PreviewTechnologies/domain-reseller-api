@@ -86,6 +86,11 @@ class Domain
     public $expirationDate;
 
     /**
+     * @var bool
+     */
+    public $privacyProtected;
+
+    /**
      * @return string
      */
     public function getName()
@@ -370,6 +375,26 @@ class Domain
     public function setExpirationDate($expirationDate)
     {
         $this->expirationDate = $expirationDate;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPrivacyProtected()
+    {
+        return $this->privacyProtected;
+    }
+
+    /**
+     * @param bool $privacyProtected
+     *
+     * @return Domain
+     */
+    public function setPrivacyProtected($privacyProtected)
+    {
+        $this->privacyProtected = $privacyProtected;
+
         return $this;
     }
 }
