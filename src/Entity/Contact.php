@@ -50,11 +50,13 @@ class Contact
 
     /**
      * @param int $id
+     *
      * @return Contact
      */
     public function setId($id)
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -68,11 +70,13 @@ class Contact
 
     /**
      * @param string $name
+     *
      * @return Contact
      */
     public function setName($name)
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -86,11 +90,13 @@ class Contact
 
     /**
      * @param string $company
+     *
      * @return Contact
      */
     public function setCompany($company)
     {
         $this->company = $company;
+
         return $this;
     }
 
@@ -104,11 +110,13 @@ class Contact
 
     /**
      * @param string $email
+     *
      * @return Contact
      */
     public function setEmail($email)
     {
         $this->email = $email;
+
         return $this;
     }
 
@@ -122,11 +130,13 @@ class Contact
 
     /**
      * @param string $customerId
+     *
      * @return Contact
      */
     public function setCustomerId($customerId)
     {
         $this->customerId = $customerId;
+
         return $this;
     }
 
@@ -140,11 +150,13 @@ class Contact
 
     /**
      * @param string $type
+     *
      * @return Contact
      */
     public function setType($type)
     {
         $this->type = $type;
+
         return $this;
     }
 
@@ -158,11 +170,29 @@ class Contact
 
     /**
      * @param Address $address
+     *
      * @return Contact
      */
     public function setAddress(Address $address)
     {
         $this->address = $address;
+
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            'id'         => $this->getId(),
+            'name'       => $this->getName(),
+            'company'    => $this->getCompany(),
+            'email'      => $this->getEmail(),
+            'customerId' => $this->getCustomerId(),
+            'type'       => $this->getType(),
+            'address'    => $this->getAddress()->toArray()
+        ];
     }
 }

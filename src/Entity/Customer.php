@@ -76,11 +76,13 @@ class Customer
 
     /**
      * @param int $id
+     *
      * @return Customer
      */
     public function setId($id)
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -94,11 +96,13 @@ class Customer
 
     /**
      * @param string $username
+     *
      * @return Customer
      */
     public function setUsername($username)
     {
         $this->username = $username;
+
         return $this;
     }
 
@@ -112,11 +116,13 @@ class Customer
 
     /**
      * @param string $name
+     *
      * @return Customer
      */
     public function setName($name)
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -130,11 +136,13 @@ class Customer
 
     /**
      * @param int|null $resellerId
+     *
      * @return Customer
      */
     public function setResellerId($resellerId)
     {
         $this->resellerId = $resellerId;
+
         return $this;
     }
 
@@ -148,11 +156,13 @@ class Customer
 
     /**
      * @param Address $address
+     *
      * @return Customer
      */
     public function setAddress(Address $address)
     {
         $this->address = $address;
+
         return $this;
     }
 
@@ -166,11 +176,13 @@ class Customer
 
     /**
      * @param null|string $company
+     *
      * @return Customer
      */
     public function setCompany($company)
     {
         $this->company = $company;
+
         return $this;
     }
 
@@ -184,11 +196,13 @@ class Customer
 
     /**
      * @param null|string $status
+     *
      * @return Customer
      */
     public function setStatus($status)
     {
         $this->status = $status;
+
         return $this;
     }
 
@@ -202,11 +216,13 @@ class Customer
 
     /**
      * @param string $emailAddress
+     *
      * @return Customer
      */
     public function setEmailAddress($emailAddress)
     {
         $this->emailAddress = $emailAddress;
+
         return $this;
     }
 
@@ -220,11 +236,13 @@ class Customer
 
     /**
      * @param string $telephone
+     *
      * @return Customer
      */
     public function setTelephone($telephone)
     {
         $this->telephone = $telephone;
+
         return $this;
     }
 
@@ -238,11 +256,13 @@ class Customer
 
     /**
      * @param string $mobile
+     *
      * @return Customer
      */
     public function setMobile($mobile)
     {
         $this->mobile = $mobile;
+
         return $this;
     }
 
@@ -256,11 +276,13 @@ class Customer
 
     /**
      * @param string $fax
+     *
      * @return Customer
      */
     public function setFax($fax)
     {
         $this->fax = $fax;
+
         return $this;
     }
 
@@ -290,11 +312,13 @@ class Customer
 
     /**
      * @param string $language
+     *
      * @return Customer
      */
     public function setLanguage($language)
     {
         $this->language = $language;
+
         return $this;
     }
 
@@ -308,11 +332,13 @@ class Customer
 
     /**
      * @param bool|null $twoFactorAuthEnabled
+     *
      * @return Customer
      */
     public function setTwoFactorAuthEnabled($twoFactorAuthEnabled)
     {
         $this->twoFactorAuthEnabled = $twoFactorAuthEnabled;
+
         return $this;
     }
 
@@ -326,11 +352,34 @@ class Customer
 
     /**
      * @param string $password
+     *
      * @return Customer
      */
     public function setPassword($password)
     {
         $this->password = $password;
+
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            'id'                   => $this->getId(),
+            'username'             => $this->getUsername(),
+            'emailAddress'         => $this->getEmailAddress(),
+            'resellerId'           => $this->getResellerId(),
+            'name'                 => $this->getName(),
+            'address'              => $this->getAddress()->toArray(),
+            'company'              => $this->getCompany(),
+            'pin'                  => $this->getPin(),
+            'status'               => $this->getStatus(),
+            'language'             => $this->getLanguage(),
+            'twoFactorAuthEnabled' => $this->getTwoFactorAuthEnabled(),
+            'password'             => $this->getPassword()
+        ];
     }
 }

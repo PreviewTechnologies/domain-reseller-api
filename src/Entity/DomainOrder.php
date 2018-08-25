@@ -125,11 +125,13 @@ class DomainOrder
 
     /**
      * @param int $id
+     *
      * @return DomainOrder
      */
     public function setId($id)
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -143,11 +145,13 @@ class DomainOrder
 
     /**
      * @param string $productKey
+     *
      * @return DomainOrder
      */
     public function setProductKey($productKey)
     {
         $this->productKey = $productKey;
+
         return $this;
     }
 
@@ -161,11 +165,13 @@ class DomainOrder
 
     /**
      * @param bool $autoRenew
+     *
      * @return DomainOrder
      */
     public function setAutoRenew($autoRenew)
     {
         $this->autoRenew = $autoRenew;
+
         return $this;
     }
 
@@ -179,11 +185,13 @@ class DomainOrder
 
     /**
      * @param bool $orderSuspendedByParent
+     *
      * @return DomainOrder
      */
     public function setOrderSuspendedByParent($orderSuspendedByParent)
     {
         $this->orderSuspendedByParent = $orderSuspendedByParent;
+
         return $this;
     }
 
@@ -197,11 +205,13 @@ class DomainOrder
 
     /**
      * @param float $customerCost
+     *
      * @return DomainOrder
      */
     public function setCustomerCost($customerCost)
     {
         $this->customerCost = $customerCost;
+
         return $this;
     }
 
@@ -215,11 +225,13 @@ class DomainOrder
 
     /**
      * @param array $status
+     *
      * @return DomainOrder
      */
     public function setStatus($status)
     {
         $this->status = $status;
+
         return $this;
     }
 
@@ -233,11 +245,13 @@ class DomainOrder
 
     /**
      * @param bool $isOrderSuspendedUponExpiry
+     *
      * @return DomainOrder
      */
     public function setIsOrderSuspendedUponExpiry($isOrderSuspendedUponExpiry)
     {
         $this->isOrderSuspendedUponExpiry = $isOrderSuspendedUponExpiry;
+
         return $this;
     }
 
@@ -251,11 +265,13 @@ class DomainOrder
 
     /**
      * @param string $actionStatus
+     *
      * @return DomainOrder
      */
     public function setActionStatus($actionStatus)
     {
         $this->actionStatus = $actionStatus;
+
         return $this;
     }
 
@@ -269,11 +285,13 @@ class DomainOrder
 
     /**
      * @param string $actionStatusDescription
+     *
      * @return DomainOrder
      */
     public function setActionStatusDescription($actionStatusDescription)
     {
         $this->actionStatusDescription = $actionStatusDescription;
+
         return $this;
     }
 
@@ -287,11 +305,13 @@ class DomainOrder
 
     /**
      * @param string $className
+     *
      * @return DomainOrder
      */
     public function setClassName($className)
     {
         $this->className = $className;
+
         return $this;
     }
 
@@ -305,11 +325,13 @@ class DomainOrder
 
     /**
      * @param Customer $customer
+     *
      * @return DomainOrder
      */
     public function setCustomer($customer)
     {
         $this->customer = $customer;
+
         return $this;
     }
 
@@ -323,11 +345,13 @@ class DomainOrder
 
     /**
      * @param int $invoiceId
+     *
      * @return DomainOrder
      */
     public function setInvoiceId($invoiceId)
     {
         $this->invoiceId = $invoiceId;
+
         return $this;
     }
 
@@ -341,11 +365,13 @@ class DomainOrder
 
     /**
      * @param string $orderCreatedFromIp
+     *
      * @return DomainOrder
      */
     public function setOrderCreatedFromIp($orderCreatedFromIp)
     {
         $this->orderCreatedFromIp = $orderCreatedFromIp;
+
         return $this;
     }
 
@@ -359,11 +385,13 @@ class DomainOrder
 
     /**
      * @param int $numberOfYears
+     *
      * @return DomainOrder
      */
     public function setNumberOfYears($numberOfYears)
     {
         $this->numberOfYears = $numberOfYears;
+
         return $this;
     }
 
@@ -377,11 +405,13 @@ class DomainOrder
 
     /**
      * @param string $invoiceOption
+     *
      * @return DomainOrder
      */
     public function setInvoiceOption($invoiceOption)
     {
         $this->invoiceOption = $invoiceOption;
+
         return $this;
     }
 
@@ -395,11 +425,13 @@ class DomainOrder
 
     /**
      * @param float $resellerCost
+     *
      * @return DomainOrder
      */
     public function setResellerCost($resellerCost)
     {
         $this->resellerCost = $resellerCost;
+
         return $this;
     }
 
@@ -413,11 +445,13 @@ class DomainOrder
 
     /**
      * @param bool $privacyProtectedAllowed
+     *
      * @return DomainOrder
      */
     public function setPrivacyProtectedAllowed($privacyProtectedAllowed)
     {
         $this->privacyProtectedAllowed = $privacyProtectedAllowed;
+
         return $this;
     }
 
@@ -431,11 +465,13 @@ class DomainOrder
 
     /**
      * @param int $privacyProtectionActionId
+     *
      * @return DomainOrder
      */
     public function setPrivacyProtectionActionId($privacyProtectionActionId)
     {
         $this->privacyProtectionActionId = $privacyProtectionActionId;
+
         return $this;
     }
 
@@ -449,11 +485,13 @@ class DomainOrder
 
     /**
      * @param bool $allowedDeletion
+     *
      * @return DomainOrder
      */
     public function setAllowedDeletion($allowedDeletion)
     {
         $this->allowedDeletion = $allowedDeletion;
+
         return $this;
     }
 
@@ -467,11 +505,13 @@ class DomainOrder
 
     /**
      * @param bool $bulkWHOISOptout
+     *
      * @return DomainOrder
      */
     public function setBulkWHOISOptout($bulkWHOISOptout)
     {
         $this->bulkWHOISOptout = $bulkWHOISOptout;
+
         return $this;
     }
 
@@ -485,11 +525,13 @@ class DomainOrder
 
     /**
      * @param string $productCategory
+     *
      * @return DomainOrder
      */
     public function setProductCategory($productCategory)
     {
         $this->productCategory = $productCategory;
+
         return $this;
     }
 
@@ -511,5 +553,36 @@ class DomainOrder
         $this->privacyProtected = $privacyProtected;
 
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            'id'                         => $this->getId(),
+            'productKey'                 => $this->getProductKey(),
+            'autoRenew'                  => $this->isAutoRenew(),
+            'orderSuspendedByParent'     => $this->isOrderSuspendedByParent(),
+            'customerCost'               => $this->getCustomerCost(),
+            'status'                     => $this->getStatus(),
+            'isOrderSuspendedUponExpiry' => $this->isOrderSuspendedUponExpiry(),
+            'actionStatus'               => $this->getActionStatus(),
+            'actionStatusDescription'    => $this->getActionStatusDescription(),
+            'className'                  => $this->getClassName(),
+            'customer'                   => $this->getCustomer()->toArray(),
+            'invoiceId'                  => $this->getInvoiceId(),
+            'orderCreatedFromIp'         => $this->getOrderCreatedFromIp(),
+            'numberOfYears'              => $this->getNumberOfYears(),
+            'invoiceOption'              => $this->getInvoiceOption(),
+            'resellerCost'               => $this->getResellerCost(),
+            'privacyProtectedAllowed'    => $this->isPrivacyProtectedAllowed(),
+            'privacyProtectionActionId'  => $this->getPrivacyProtectionActionId(),
+            'allowedDeletion'            => $this->isAllowedDeletion(),
+            'bulkWHOISOptout'            => $this->isBulkWHOISOptout(),
+            'productCategory'            => $this->getProductCategory(),
+            'privacyProtected'           => $this->isPrivacyProtected()
+        ];
     }
 }

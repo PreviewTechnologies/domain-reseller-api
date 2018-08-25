@@ -80,11 +80,13 @@ class Address
 
     /**
      * @param null|string $primaryStreet
+     *
      * @return Address
      */
     public function setPrimaryStreet($primaryStreet)
     {
         $this->primaryStreet = $primaryStreet;
+
         return $this;
     }
 
@@ -98,11 +100,13 @@ class Address
 
     /**
      * @param null|string $secondaryStreet
+     *
      * @return Address
      */
     public function setSecondaryStreet($secondaryStreet)
     {
         $this->secondaryStreet = $secondaryStreet;
+
         return $this;
     }
 
@@ -116,11 +120,13 @@ class Address
 
     /**
      * @param null|string $anotherStreet
+     *
      * @return Address
      */
     public function setAnotherStreet($anotherStreet)
     {
         $this->anotherStreet = $anotherStreet;
+
         return $this;
     }
 
@@ -134,11 +140,13 @@ class Address
 
     /**
      * @param null|string $city
+     *
      * @return Address
      */
     public function setCity($city)
     {
         $this->city = $city;
+
         return $this;
     }
 
@@ -152,11 +160,13 @@ class Address
 
     /**
      * @param null|string $state
+     *
      * @return Address
      */
     public function setState($state)
     {
         $this->state = $state;
+
         return $this;
     }
 
@@ -170,11 +180,13 @@ class Address
 
     /**
      * @param null|string $country
+     *
      * @return Address
      */
     public function setCountry($country)
     {
         $this->country = $country;
+
         return $this;
     }
 
@@ -188,11 +200,13 @@ class Address
 
     /**
      * @param int $zipCode
+     *
      * @return Address
      */
     public function setZipCode($zipCode)
     {
         $this->zipCode = $zipCode;
+
         return $this;
     }
 
@@ -206,11 +220,13 @@ class Address
 
     /**
      * @param int $telephone
+     *
      * @return Address
      */
     public function setTelephone($telephone)
     {
         $this->telephone = $telephone;
+
         return $this;
     }
 
@@ -224,11 +240,13 @@ class Address
 
     /**
      * @param int $telephoneCountryCode
+     *
      * @return Address
      */
     public function setTelephoneCountryCode($telephoneCountryCode)
     {
         $this->telephoneCountryCode = $telephoneCountryCode;
+
         return $this;
     }
 
@@ -242,11 +260,13 @@ class Address
 
     /**
      * @param int $telephoneExtension
+     *
      * @return Address
      */
     public function setTelephoneExtension($telephoneExtension)
     {
         $this->telephoneExtension = $telephoneExtension;
+
         return $this;
     }
 
@@ -260,11 +280,13 @@ class Address
 
     /**
      * @param int $mobile
+     *
      * @return Address
      */
     public function setMobile($mobile)
     {
         $this->mobile = $mobile;
+
         return $this;
     }
 
@@ -278,11 +300,13 @@ class Address
 
     /**
      * @param int $mobileCountryCode
+     *
      * @return Address
      */
     public function setMobileCountryCode($mobileCountryCode)
     {
         $this->mobileCountryCode = $mobileCountryCode;
+
         return $this;
     }
 
@@ -296,11 +320,13 @@ class Address
 
     /**
      * @param int $fax
+     *
      * @return Address
      */
     public function setFax($fax)
     {
         $this->fax = $fax;
+
         return $this;
     }
 
@@ -314,11 +340,36 @@ class Address
 
     /**
      * @param int $faxCountryCode
+     *
      * @return Address
      */
     public function setFaxCountryCode($faxCountryCode)
     {
         $this->faxCountryCode = $faxCountryCode;
+
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            'primaryStreet'        => $this->getPrimaryStreet(),
+            'secondaryStreet'      => $this->getSecondaryStreet(),
+            'anotherStreet'        => $this->getAnotherStreet(),
+            'city'                 => $this->getCity(),
+            'state'                => $this->getState(),
+            'country'              => $this->getCountry(),
+            'telephone'            => $this->getTelephone(),
+            'telephoneCountryCode' => $this->getTelephoneCountryCode(),
+            'telephoneExtension'   => $this->getTelephoneExtension(),
+            'mobile'               => $this->getMobile(),
+            'mobileCountryCode'    => $this->getMobileCountryCode(),
+            'fax'                  => $this->getFax(),
+            'faxCountryCode'       => $this->getFaxCountryCode(),
+            'zipCode'              => $this->getZipCode()
+        ];
     }
 }
