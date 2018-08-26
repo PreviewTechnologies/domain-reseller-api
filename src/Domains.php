@@ -95,4 +95,60 @@ class Domains
     {
         return $this->provider->domainDetails($domainName, $options);
     }
+
+    /**
+     * @param $domain
+     * @return array|null
+     */
+    public function isPremium($domain)
+    {
+        return $this->provider->isPremium($domain);
+    }
+
+    /**
+     * @param $domain
+     * @return Entity\Locks
+     */
+    public function getAllLocks($domain)
+    {
+        return $this->provider->getAllLocks($domain);
+    }
+
+    /**
+     * @param $domain
+     * @return array|null
+     */
+    public function enableTheftProtection($domain)
+    {
+        return $this->provider->enableTheftProtection($domain);
+    }
+
+    /**
+     * @param $domain
+     * @return array|null
+     */
+    public function disableTheftProtection($domain)
+    {
+        return $this->provider->disableTheftProtection($domain);
+    }
+
+    /**
+     * @param $domain
+     * @param null $authCode
+     * @return array|null
+     */
+    public function changeAuthCode($domain, $authCode = null)
+    {
+        return $this->provider->changeAuthCode($domain, $authCode);
+    }
+
+    /**
+     * @param $domain
+     * @param array $nameServers
+     * @return array|null
+     */
+    public function updateNameServers($domain, array $nameServers)
+    {
+        return $this->provider->updateNameServers($domain, $nameServers);
+    }
 }

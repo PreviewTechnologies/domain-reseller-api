@@ -6,6 +6,7 @@ namespace PreviewTechs\DomainReseller;
 use PreviewTechs\DomainReseller\Entity\Contact;
 use PreviewTechs\DomainReseller\Entity\Customer;
 use PreviewTechs\DomainReseller\Entity\Domain;
+use PreviewTechs\DomainReseller\Entity\Locks;
 use PreviewTechs\DomainReseller\Exceptions\ProviderExceptions;
 
 interface ProviderInterface
@@ -59,6 +60,12 @@ interface ProviderInterface
     public function isDomainAvailable($domainName, $extensions);
 
     /**
+     * @param $domainName
+     * @return array|null
+     */
+    public function isPremium($domainName);
+
+    /**
      * @param $keyWord
      * @param null $tld
      * @param bool $exactMatch
@@ -88,4 +95,36 @@ interface ProviderInterface
      * @throws ProviderExceptions
      */
     public function domainDetails($domain, array $options = []);
+
+    /**
+     * @param $domain
+     * @return Locks
+     */
+    public function getAllLocks($domain);
+
+    /**
+     * @param $domain
+     * @return array|null
+     */
+    public function enableTheftProtection($domain);
+
+    /**
+     * @param $domain
+     * @return array|null
+     */
+    public function disableTheftProtection($domain);
+
+    /**
+     * @param $domain
+     * @param array $nameServers
+     * @return array|null
+     */
+    public function updateNameServers($domain, array $nameServers);
+
+    /**
+     * @param array $domain
+     * @param null $authCode
+     * @return array|null
+     */
+    public function changeAuthCode($domain, $authCode = null);
 }

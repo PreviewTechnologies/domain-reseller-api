@@ -10,6 +10,7 @@ use PreviewTechs\DomainReseller\Entity\Address;
 use PreviewTechs\DomainReseller\Entity\Contact;
 use PreviewTechs\DomainReseller\Entity\Customer;
 use PreviewTechs\DomainReseller\Entity\Domain;
+use PreviewTechs\DomainReseller\Entity\Locks;
 use PreviewTechs\DomainReseller\Exceptions\ProviderExceptions;
 use PreviewTechs\DomainReseller\ProviderInterface;
 use PreviewTechs\DomainReseller\Utility\HTTP;
@@ -80,7 +81,7 @@ class NetEarthOne implements ProviderInterface
         if (strpos($response->getHeaderLine("Content-Type"), "text/xml") === 0) {
             $xml = simplexml_load_string((string)$response->getBody());
             $data = json_decode(json_encode($xml), TRUE);
-        }elseif (strpos($response->getHeaderLine("Content-Type"), "application/xml") === 0) {
+        } elseif (strpos($response->getHeaderLine("Content-Type"), "application/xml") === 0) {
             $xml = simplexml_load_string((string)$response->getBody());
             $data = json_decode(json_encode($xml), TRUE);
         } elseif (strpos($response->getHeaderLine("Content-Type"), "application/json") === 0) {
@@ -96,16 +97,18 @@ class NetEarthOne implements ProviderInterface
         return $data;
     }
 
-    protected function query_builder($a,$b=0,$c=0){
+    protected function query_builder($a, $b = 0, $c = 0)
+    {
         if (!is_array($a)) return false;
-        foreach ((array)$a as $k=>$v){
-            if ($c) $k=$b.""; elseif (is_int($k)) $k=$b.$k;
-            if (is_array($v)||is_object($v)) {
-                $r[]=$this->query_builder($v,$k,1);continue;
+        foreach ((array)$a as $k => $v) {
+            if ($c) $k = $b . ""; elseif (is_int($k)) $k = $b . $k;
+            if (is_array($v) || is_object($v)) {
+                $r[] = $this->query_builder($v, $k, 1);
+                continue;
             }
-            $r[]=urlencode($k)."=" .urlencode($v);
+            $r[] = urlencode($k) . "=" . urlencode($v);
         }
-        return implode("&",$r);
+        return implode("&", $r);
     }
 
     /**
@@ -202,7 +205,7 @@ class NetEarthOne implements ProviderInterface
         $address = new Address();
         $address->setPrimaryStreet($customerData['address1']);
 
-        if(!empty($customerData['address2'])){
+        if (!empty($customerData['address2'])) {
             $address->setSecondaryStreet($customerData['address2']);
         }
 
@@ -238,14 +241,14 @@ class NetEarthOne implements ProviderInterface
      */
     public function createCustomer(Customer $customer)
     {
-        if($customer->getUsername()){
+        if ($customer->getUsername()) {
             try {
                 $isAlreadyExists = $this->getCustomer($customer->getUsername());
             } catch (Exception $e) {
             } catch (ProviderExceptions $e) {
             }
 
-            if(!empty($isAlreadyExists)){
+            if (!empty($isAlreadyExists)) {
                 return $isAlreadyExists;
             }
         }
@@ -266,8 +269,8 @@ class NetEarthOne implements ProviderInterface
         ];
 
         $requiredFields = ["username", "name", "company", "address-line-1", "city", "state", "country", "zipcode", "phone-cc", "lang-pref", "phone", "passwd"];
-        foreach ($requiredFields as $requiredField){
-            if(empty($requiredField)){
+        foreach ($requiredFields as $requiredField) {
+            if (empty($requiredField)) {
                 throw new ProviderExceptions(sprintf("`%s` field value required", $requiredField));
             }
         }
@@ -285,7 +288,7 @@ class NetEarthOne implements ProviderInterface
                 $customer->setId(intval($matches[0][1]));
                 return $customer;
             }
-        }else{
+        } else {
             $customer->setId(intval($data[0]));
         }
 
@@ -377,7 +380,7 @@ class NetEarthOne implements ProviderInterface
 
     protected function addContact($customerId, Contact $contact)
     {
-        if(!empty($contact->getId())){
+        if (!empty($contact->getId())) {
             return $contact;
         }
 
@@ -400,7 +403,7 @@ class NetEarthOne implements ProviderInterface
         ];
 
         $results = $this->sendRequest("GET", "/contacts/add.json", $queryParams);
-        if(is_int($results)){
+        if (is_int($results)) {
             $contact->setId($results);
             return $contact;
         }
@@ -431,7 +434,7 @@ class NetEarthOne implements ProviderInterface
         ];
 
         $result = $this->sendRequest("POST", "/contacts/modDefault.json", $params);
-        if(empty($result)){
+        if (empty($result)) {
             return false;
         }
 
@@ -454,7 +457,7 @@ class NetEarthOne implements ProviderInterface
 
         $result = $this->sendRequest("GET", "/contacts/default.json", $params);
 
-        if(empty($result) || !array_key_exists("Contact", $result)){
+        if (empty($result) || !array_key_exists("Contact", $result)) {
             return false;
         }
 
@@ -504,37 +507,37 @@ class NetEarthOne implements ProviderInterface
      */
     public function registerDomain($domainName, Customer $customer, Contact $registrantContact = null, Contact $administrativeContact = null, Contact $technicalContact = null, Contact $billingContact = null, array $options = [])
     {
-        if(empty($options['ns'])){
+        if (empty($options['ns'])) {
             throw new ProviderExceptions("options[ns] value must be provided to register domain");
         }
 
-        if(!empty($options['invoice-option'])){
-            if(!in_array($options['invoice-option'], ['PayInvoice', 'NoInvoice', 'KeepInvoice', 'OnlyAdd'])){
+        if (!empty($options['invoice-option'])) {
+            if (!in_array($options['invoice-option'], ['PayInvoice', 'NoInvoice', 'KeepInvoice', 'OnlyAdd'])) {
                 throw new ProviderExceptions("Invalid `options[invoice-option]` value. Accepted values are: PayInvoice, NoInvoice, KeepInvoice, OnlyAdd");
             }
         }
 
         $customerId = $customer->getId();
-        if(empty($customer->getId())){
+        if (empty($customer->getId())) {
             $customer = $this->createCustomer($customer);
             $customerId = $customer->getId();
         }
 
         $defaultContacts = $this->getDefaultContacts($customerId);
 
-        if(!$registrantContact && empty($defaultContacts['registrant'])){
+        if (!$registrantContact && empty($defaultContacts['registrant'])) {
             throw new ProviderExceptions("You must provide registrant contact information");
         }
 
-        if(!$administrativeContact && empty($defaultContacts['administrative'])){
+        if (!$administrativeContact && empty($defaultContacts['administrative'])) {
             throw new ProviderExceptions("You must provide administrative contact information");
         }
 
-        if(!$billingContact && empty($defaultContacts['billing'])){
+        if (!$billingContact && empty($defaultContacts['billing'])) {
             throw new ProviderExceptions("You must provide billing contact information");
         }
 
-        if(!$technicalContact && empty($defaultContacts['technical'])){
+        if (!$technicalContact && empty($defaultContacts['technical'])) {
             throw new ProviderExceptions("You must provide technical contact information");
         }
 
@@ -543,7 +546,7 @@ class NetEarthOne implements ProviderInterface
         $technicalContactId = !empty($technicalContact) ? $this->addContact($customerId, $technicalContact) : (new Contact())->setId($defaultContacts['technical']);
         $billingContactId = !empty($billingContact) ? $this->addContact($customerId, $billingContact) : (new Contact())->setId($defaultContacts['billing']);
 
-        if(!$defaultContacts || !$defaultContacts['technical'] || !$defaultContacts['billing'] || !$defaultContacts['registrant'] || !$defaultContacts['administrative']){
+        if (!$defaultContacts || !$defaultContacts['technical'] || !$defaultContacts['billing'] || !$defaultContacts['registrant'] || !$defaultContacts['administrative']) {
             $this->setDefaultContacts($customerId, 'Contact', $registrantContactId->getId(), $technicalContactId->getId(), $billingContactId->getId(), $administrativeContactId->getId());
         }
 
@@ -564,16 +567,16 @@ class NetEarthOne implements ProviderInterface
 
         $result = $this->sendRequest("GET", "/domains/register.xml", $queryParams);
 
-        if(!array_key_exists("entry", $result)){
+        if (!array_key_exists("entry", $result)) {
             throw new ProviderExceptions("Unknown error occured. Error: " . json_encode($result));
         }
 
         $output = [];
-        foreach ($result['entry'] as $item){
+        foreach ($result['entry'] as $item) {
             $output[$item['string'][0]] = $item['string'][1];
         }
 
-        if($output['status'] === "error"){
+        if ($output['status'] === "error") {
             throw new ProviderExceptions($output['error']);
         }
 
@@ -583,31 +586,31 @@ class NetEarthOne implements ProviderInterface
             'domain' => $domainName
         ];
 
-        if(!empty($output['actionstatus'])){
+        if (!empty($output['actionstatus'])) {
             $refinedOutput['actionStatus'] = $output['actionstatus'] === "Success" ? "success" : strtolower($output['actionstatus']);
         }
 
-        if(!empty($output['eaqid'])){
+        if (!empty($output['eaqid'])) {
             $refinedOutput['privacyProtectionPurchaseActionId'] = $output['eaqid'];
         }
 
-        if(!empty($output['customerid'])){
+        if (!empty($output['customerid'])) {
             $refinedOutput['customerId'] = $output['customerid'];
         }
 
-        if(!empty($output['invoiceid'])){
+        if (!empty($output['invoiceid'])) {
             $refinedOutput['invoiceId'] = $output['invoiceid'];
         }
 
-        if(!empty($output['sellingcurrencysymbol'])){
+        if (!empty($output['sellingcurrencysymbol'])) {
             $refinedOutput['sellingCurrency'] = $output['sellingcurrencysymbol'];
         }
 
-        if(!empty($output['sellingamount'])){
+        if (!empty($output['sellingamount'])) {
             $refinedOutput['sellingAmount'] = $output['sellingamount'];
         }
 
-        if(!empty($output['pendingamount'])){
+        if (!empty($output['pendingamount'])) {
             $refinedOutput['pendingAmount'] = $output['pendingamount'];
         }
 
@@ -630,7 +633,7 @@ class NetEarthOne implements ProviderInterface
 
         $result = $this->sendRequest("GET", "/domains/details-by-name.json", $queryParams);
 
-        if(empty($result['domainname'])){
+        if (empty($result['domainname'])) {
             throw new ProviderExceptions("Domain not found");
         }
 
@@ -639,37 +642,37 @@ class NetEarthOne implements ProviderInterface
 
         $domain->setName($result['domainname']);
 
-        if(!empty($result['creationtime'])){
+        if (!empty($result['creationtime'])) {
             $createdAt = DateTime::createFromFormat(DATE_ATOM, date(DATE_ATOM, $result['creationtime']));
             $domain->setCreatedAt($createdAt);
         }
 
-        if(!empty($result['endtime'])){
+        if (!empty($result['endtime'])) {
             $expirationTime = DateTime::createFromFormat(DATE_ATOM, date(DATE_ATOM, $result['endtime']));
             $domain->setExpirationDate($expirationTime);
         }
 
         $domain->setCurrentStatus($result['currentstatus']);
 
-        if(!empty($result['domsecret'])){
+        if (!empty($result['domsecret'])) {
             $domain->setDomainSecret($result['domsecret']);
         }
 
-        if(!empty($result['domainstatus'])){
+        if (!empty($result['domainstatus'])) {
             $domain->setStatus($result['domainstatus']);
         }
 
         $noOfNS = intval($result['noOfNameServers']);
-        for($i=1; $i <= $noOfNS; $i++){
+        for ($i = 1; $i <= $noOfNS; $i++) {
             $nameServers[$i] = $result['ns' . $i];
         }
         $domain->setNameServers($nameServers);
 
-        if(!empty($result['raaVerificationStatus'])) {
+        if (!empty($result['raaVerificationStatus'])) {
             $domain->setRegistrantContactEmailVerificationStatus($result['raaVerificationStatus']);
         }
 
-        if(!empty($result['raaVerificationStartTime'])){
+        if (!empty($result['raaVerificationStartTime'])) {
             $raaVerificationStartTime = DateTime::createFromFormat(DATE_ATOM, date(DATE_ATOM, $result['raaVerificationStartTime']));
             $domain->setRegistrantContactEmailVerificationTime($raaVerificationStartTime);
         }
@@ -752,20 +755,20 @@ class NetEarthOne implements ProviderInterface
 
 
         $order->setId($result['orderid']);
-        if(!empty($result['actionstatus'])){
+        if (!empty($result['actionstatus'])) {
             $order->setActionStatus($result['actionstatus']);
         }
 
-        if(!empty($result['actionstatusdesc'])){
+        if (!empty($result['actionstatusdesc'])) {
             $order->setActionStatusDescription($result['actionstatusdesc']);
         }
 
-        $order->setAllowedDeletion((bool) $result['allowdeletion']);
-        $order->setIsOrderSuspendedUponExpiry((bool) $result['isOrderSuspendedUponExpiry']);
-        $order->setOrderSuspendedByParent((bool) $result['orderSuspendedByParent']);
+        $order->setAllowedDeletion((bool)$result['allowdeletion']);
+        $order->setIsOrderSuspendedUponExpiry((bool)$result['isOrderSuspendedUponExpiry']);
+        $order->setOrderSuspendedByParent((bool)$result['orderSuspendedByParent']);
         $order->setProductKey($result['productkey']);
         $order->setProductCategory($result['productcategory']);
-        $order->setCustomerCost((double) $result['customercost']);
+        $order->setCustomerCost((double)$result['customercost']);
         $order->setClassName($result['classname']);
         $order->setStatus($result['orderstatus']);
 
@@ -773,10 +776,10 @@ class NetEarthOne implements ProviderInterface
         $domain->setCustomer($customer);
         $order->setCustomer($customer);
 
-        if(!empty($result['isprivacyprotected'])){
+        if (!empty($result['isprivacyprotected'])) {
             $domain->setPrivacyProtected($result['isprivacyprotected']);
             $order->setPrivacyProtected($result['isprivacyprotected']);
-        }else{
+        } else {
             $domain->setPrivacyProtected(false);
             $order->setPrivacyProtected(false);
         }
@@ -784,5 +787,189 @@ class NetEarthOne implements ProviderInterface
         $domain->setOrder($order);
 
         return $domain;
+    }
+
+    /**
+     * @param $domainName
+     * @return array|null
+     * @throws Exception
+     * @throws ProviderExceptions
+     */
+    public function isPremium($domainName)
+    {
+        $queryParams = [
+            'domain-name' => $domainName
+        ];
+
+        $result = $this->sendRequest("GET", "/domains/premium-check.json", $queryParams);
+        return $result;
+    }
+
+    /**
+     * @param $domain
+     * @return array|Locks
+     * @throws Exception
+     * @throws ProviderExceptions
+     */
+    public function getAllLocks($domain)
+    {
+        $orderId = $this->getOrderId($domain);
+        if (empty($orderId)) {
+            throw new ProviderExceptions("Failed to get order id for this domain");
+        }
+
+        $queryParams = [
+            'order-id' => $orderId
+        ];
+
+        $result = $this->sendRequest("GET", "/domains/locks.json", $queryParams);
+        if (!is_array($result) || sizeof($result) < 1) {
+            return [];
+        }
+
+        if (array_key_exists('transferlock', $result) && array_key_exists("customerlock", $result) && $result['customerlock'] === true && $result['transferlock'] === true) {
+            $result['theft_protection'] = true;
+        }
+
+        $lock = new Locks();
+        if (!empty($result['customerlock'])) {
+            $lock->setCustomerLock($result['customerlock']);
+        }
+
+        if (!empty($result['transferlock'])) {
+            $lock->setTransferLock($result['transferlock']);
+        }
+
+        if (!empty($result['resellerlock'])) {
+            $lock->setResellerLock(true);
+            !empty($result['resellerlock'][1]['lockerid']) ? $lock->setResellerLockerId($result['resellerlock'][1]['lockerid']) : null;
+            !empty($result['resellerlock'][1]['addedby']) ? $lock->setResellerLockAddedBy($result['resellerlock'][1]['addedby']) : null;
+            !empty($result['resellerlock'][1]['reason']) ? $lock->setResellerLockReason($result['resellerlock'][1]['reason']) : null;
+
+            if (!empty($result['resellerlock'][1]['creationdt'])) {
+                $cd = DateTime::createFromFormat("Y-m-d H:i:s", date("Y-m-d H:i:s", $result['resellerlock'][1]['creationdt']));
+                $lock->setResellerLockCreatedAt($cd);
+            }
+        }
+
+        if (!empty($result['theft_protection'])) {
+            $lock->setTheftProtectionEnabled(true);
+        } else {
+            $lock->setTheftProtectionEnabled(false);
+        }
+
+        return $lock;
+    }
+
+    /**
+     * @param $domain
+     * @return array|null
+     * @throws Exception
+     * @throws ProviderExceptions
+     */
+    public function enableTheftProtection($domain)
+    {
+        $orderId = $this->getOrderId($domain);
+        if (empty($orderId)) {
+            throw new ProviderExceptions("Failed to get order id for this domain");
+        }
+
+        $queryParams = [
+            'order-id' => $orderId
+        ];
+
+        $result = $this->sendRequest("GET", "/domains/enable-theft-protection.json", $queryParams);
+        return $result;
+    }
+
+    /**
+     * @param $domain
+     * @return array|null
+     * @throws Exception
+     * @throws ProviderExceptions
+     */
+    public function disableTheftProtection($domain)
+    {
+        $orderId = $this->getOrderId($domain);
+        if (empty($orderId)) {
+            throw new ProviderExceptions("Failed to get order id for this domain");
+        }
+
+        $queryParams = [
+            'order-id' => $orderId
+        ];
+
+        $result = $this->sendRequest("GET", "/domains/disable-theft-protection.json", $queryParams);
+        return $result;
+    }
+
+    /**
+     * @param $domain
+     * @param array $nameServers
+     * @return array|null
+     * @throws Exception
+     * @throws ProviderExceptions
+     */
+    public function updateNameServers($domain, array $nameServers)
+    {
+        $orderId = $this->getOrderId($domain);
+        if (empty($orderId)) {
+            throw new ProviderExceptions("Failed to get order id for this domain");
+        }
+
+        $queryParams = [
+            'order-id' => $orderId,
+            'ns' => $nameServers
+        ];
+
+        $result = $this->sendRequest("GET", "/domains/modify-ns.json", $queryParams);
+        return $result;
+    }
+
+    /**
+     * @param array $domain
+     * @param null $authCode
+     * @return array
+     * @throws Exception
+     * @throws ProviderExceptions
+     */
+    public function changeAuthCode($domain, $authCode = null)
+    {
+        if(empty($authCode)){
+            throw new ProviderExceptions("Auth code must be required");
+        }
+
+        //AuthCode validation
+        $re = '/^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}/m';
+
+        preg_match_all($re, $authCode, $matches, PREG_SET_ORDER, 0);
+        if(sizeof($matches) < 1){
+            throw new ProviderExceptions("Auth code must contain atleast one alphabet, one number and one special character");
+        }
+
+        $orderId = $this->getOrderId($domain);
+        if (empty($orderId)) {
+            throw new ProviderExceptions("Failed to get order id for this domain");
+        }
+
+        $queryParams = [
+            'order-id' => $orderId,
+            'auth-code' => $authCode
+        ];
+
+        $result = $this->sendRequest("GET", "/domains/modify-auth-code.json", $queryParams);
+        return $result;
+    }
+
+    /**
+     * @param $domain
+     * @return int
+     * @throws Exception
+     * @throws ProviderExceptions
+     */
+    public function getOrderId($domain)
+    {
+        $result = $this->sendRequest("GET", "/domains/orderid.json", ['domain-name' => $domain]);
+        return $result;
     }
 }
