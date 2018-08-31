@@ -94,6 +94,16 @@ class Domains
     }
 
     /**
+     * @param $contactId
+     *
+     * @return Contact
+     */
+    public function contactDetails($contactId)
+    {
+        return $this->provider->contactDetails($contactId);
+    }
+
+    /**
      * @param $domainName
      * @param Customer $customer
      * @param Contact $registrantContact

@@ -481,6 +481,33 @@ class NetEarthOne implements ProviderInterface
         return $data;
     }
 
+    public function contactDetails($contactId)
+    {
+        $contactArray = $this->sendRequest("GET", "/contacts/details.json", ['contact-id' => $contactId]);
+        if(empty($contactArray)){
+            return null;
+        }
+
+        $tc = new Contact();
+        $tc->setId($contactArray['contactid']);
+        $tc->setCompany($contactArray['company']);
+        $tc->setName($contactArray['name']);
+        $tc->setEmail($contactArray['emailaddr']);
+        $tc->setType($contactArray['type']);
+
+        $address = new Address();
+        $address->setTelephoneCountryCode($contactArray['telnocc']);
+        $address->setTelephone($contactArray['telno']);
+        $address->setPrimaryStreet($contactArray['address1']);
+        $address->setCity($contactArray['city']);
+        $address->setState($contactArray['state']);
+        $address->setZipCode($contactArray['zip']);
+        $address->setCountry($contactArray['country']);
+        $tc->setAddress($address);
+        
+        return $tc;
+    }
+
     /**
      * @param $customerId
      * @param string $type

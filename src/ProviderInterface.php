@@ -67,6 +67,13 @@ interface ProviderInterface
     public function listContacts($customerId, array $conditions = [], array $options = []);
 
     /**
+     * @param $contactId
+     *
+     * @return Contact
+     */
+    public function contactDetails($contactId);
+
+    /**
      * @param $domainName
      * @param $extensions
      * @return bool
