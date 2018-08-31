@@ -71,6 +71,29 @@ class Domains
     }
 
     /**
+     * @param $customerId
+     * @param Contact $contact
+     *
+     * @return Customer
+     */
+    public function addContact($customerId, Contact $contact)
+    {
+        return $this->provider->addContact($customerId, $contact);
+    }
+
+    /**
+     * @param $customerId
+     * @param array $conditions
+     * @param array $options
+     *
+     * @return null|Contact[]
+     */
+    public function listContacts($customerId, array $conditions = [], array $options = [])
+    {
+        return $this->provider->listContacts($customerId, $conditions, $options);
+    }
+
+    /**
      * @param $domainName
      * @param Customer $customer
      * @param Contact $registrantContact
@@ -150,5 +173,17 @@ class Domains
     public function updateNameServers($domain, array $nameServers)
     {
         return $this->provider->updateNameServers($domain, $nameServers);
+    }
+
+    /**
+     * @param array $conditions
+     *
+     * @param array $options
+     *
+     * @return array
+     */
+    public function actionList(array $conditions = [], array $options = [])
+    {
+        return $this->provider->actionList($conditions, $options);
     }
 }

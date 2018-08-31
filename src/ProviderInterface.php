@@ -50,6 +50,23 @@ interface ProviderInterface
     public function modifyCustomer(Customer $customer);
 
     /**
+     * @param $customerId
+     * @param Contact $customer
+     *
+     * @return Customer
+     */
+    public function addContact($customerId, Contact $customer);
+
+    /**
+     * @param $customerId
+     * @param array $conditions
+     * @param array $options
+     *
+     * @return Contact[]|null
+     */
+    public function listContacts($customerId, array $conditions = [], array $options = []);
+
+    /**
      * @param $domainName
      * @param $extensions
      * @return bool
@@ -127,4 +144,13 @@ interface ProviderInterface
      * @return array|null
      */
     public function changeAuthCode($domain, $authCode = null);
+
+    /**
+     * @param $domain
+     * @param array $conditions
+     * @param array $options
+     *
+     * @return mixed
+     */
+    public function actionList(array $conditions = [], array $options = []);
 }

@@ -378,7 +378,15 @@ class NetEarthOne implements ProviderInterface
         return array_keys($results);
     }
 
-    protected function addContact($customerId, Contact $contact)
+    /**
+     * @param $customerId
+     * @param Contact $contact
+     *
+     * @return null|Contact|Customer
+     * @throws Exception
+     * @throws ProviderExceptions
+     */
+    public function addContact($customerId, Contact $contact)
     {
         if (!empty($contact->getId())) {
             return $contact;
@@ -409,6 +417,68 @@ class NetEarthOne implements ProviderInterface
         }
 
         return null;
+    }
+
+    /**
+     * @param $customerId
+     * @param array $conditions
+     * @param array $options
+     *
+     * @return mixed|null|Contact[]
+     * @throws Exception
+     * @throws ProviderExceptions
+     */
+    public function listContacts($customerId, array $conditions = [], array $options = [])
+    {
+        $limit = 10;
+        $page = 1;
+        if(!empty($options['limit'])){
+            $limit = intval($options['limit']);
+        }
+
+        if(!empty($options['page'])){
+            $page = intval($options['page']);
+        }
+
+        if($limit < 10){
+            throw new ProviderExceptions("Invalid limit specified. Please enter a value between 10 and 500.");
+        }
+
+        $conditions = array_merge(['no-of-records' => $limit, 'page-no' => $page, 'customer-id' => $customerId], $conditions);
+        $result = $this->sendRequest("GET", "/contacts/search.json", $conditions);
+
+        $data = [
+            'pagination' => [
+                'perPage' => $limit,
+                'page' => $page,
+                'total' => intval($result['recsindb'])
+            ],
+            'contacts' => []
+        ];
+
+        foreach ($result['result'] as $item => $value){
+            if(is_array($value)){
+                $tc = new Contact();
+                $tc->setId($value['contact.contactid']);
+                $tc->setCompany($value['contact.company']);
+                $tc->setName($value['contact.name']);
+                $tc->setEmail($value['contact.emailaddr']);
+                $tc->setType($value['contact.type']);
+
+                $address = new Address();
+                $address->setTelephoneCountryCode($value['contact.telnocc']);
+                $address->setTelephone($value['contact.telno']);
+                $address->setPrimaryStreet($value['contact.address1']);
+                $address->setCity($value['contact.city']);
+                $address->setState($value['contact.state']);
+                $address->setZipCode($value['contact.zip']);
+                $address->setCountry($value['contact.country']);
+                $tc->setAddress($address);
+                $data['contacts'][] = $tc;
+            }
+        }
+
+        return $data;
     }
 
     /**
@@ -971,5 +1041,55 @@ class NetEarthOne implements ProviderInterface
     {
         $result = $this->sendRequest("GET", "/domains/orderid.json", ['domain-name' => $domain]);
         return $result;
+    }
+
+    /**
+     * @param $domain
+     * @param array $conditions
+     * @param array $options
+     *
+     * @return mixed
+     * @throws Exception
+     * @throws ProviderExceptions
+     */
+    public function actionList(array $conditions = [], array $options = [])
+    {
+        if(!empty($conditions['domain'])){
+            $conditions['order-id'] = $this->getOrderId($conditions['domain']);
+            if (empty($conditions['order-id'])) {
+                throw new ProviderExceptions("Failed to get order id for this domain");
+            }
+        }
+
+        $noOfRecords = 5;
+        $pageNumber = 1;
+        if(!empty($options['limit'])){
+            $noOfRecords = intval($options['limit']);
+        }
+
+        if(!empty($options['page'])){
+            $pageNumber = intval($options['page']);
+        }
+
+        unset($conditions['domain']);
+
+        $result = $this->sendRequest("GET", "/actions/search-current.json", array_merge($conditions, ['no-of-records' => $noOfRecords, 'page-no' => $pageNumber]));
+
+        $data = [
+            'actions' => null
+        ];
+
+        if(is_array($result)){
+            $data['pagination'] = [
+                'page' => $pageNumber,
+                'perPage' => $noOfRecords,
+                'total' => intval($result['recsindb'])
+            ];
+
+            unset($result['recsindb'], $result['recsonpage']);
+            $data['actions'] = $result;
+        }
+
+        return $data;
     }
 }
