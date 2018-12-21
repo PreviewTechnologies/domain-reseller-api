@@ -504,7 +504,7 @@ class NetEarthOne implements ProviderInterface
         $address->setZipCode($contactArray['zip']);
         $address->setCountry($contactArray['country']);
         $tc->setAddress($address);
-        
+
         return $tc;
     }
 
@@ -1068,6 +1068,20 @@ class NetEarthOne implements ProviderInterface
     {
         $result = $this->sendRequest("GET", "/domains/orderid.json", ['domain-name' => $domain]);
         return $result;
+    }
+
+    /**
+     * @param $customerId
+     *
+     * @param string $type
+     *
+     * @return Contact[]
+     * @throws Exception
+     * @throws ProviderExceptions
+     */
+    public function getCustomerDefaultContacts($customerId, $type = "Contact")
+    {
+        return $this->sendRequest("GET", "/contacts/default.json", ['customer-id' => $customerId, 'type' => $type]);
     }
 
     /**

@@ -74,6 +74,13 @@ interface ProviderInterface
     public function contactDetails($contactId);
 
     /**
+     * @param $customerId
+     *
+     * @return Contact[]
+     */
+    public function getCustomerDefaultContacts($customerId, $type);
+
+    /**
      * @param $domainName
      * @param $extensions
      * @return bool
