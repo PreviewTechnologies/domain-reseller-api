@@ -50,6 +50,13 @@ interface ProviderInterface
     public function modifyCustomer(Customer $customer);
 
     /**
+     * @param $customerId
+     *
+     * @return Contact[]
+     */
+    public function getCustomerDefaultContacts($customerId, $type);
+
+    /**
      * @param $domainName
      * @param $extensions
      * @return bool

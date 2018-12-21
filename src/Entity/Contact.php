@@ -41,6 +41,21 @@ class Contact
     public $address;
 
     /**
+     * @var string|null
+     */
+    public $currentStatus;
+
+    /**
+     * @var bool
+     */
+    public $whoisValidityIsValid;
+
+    /**
+     * @var \DateTime
+     */
+    public $createdAt;
+
+    /**
      * @return int
      */
     public function getId()
@@ -176,6 +191,66 @@ class Contact
     public function setAddress(Address $address)
     {
         $this->address = $address;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCurrentStatus()
+    {
+        return $this->currentStatus;
+    }
+
+    /**
+     * @param string|null $currentStatus
+     *
+     * @return Contact
+     */
+    public function setCurrentStatus($currentStatus)
+    {
+        $this->currentStatus = $currentStatus;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isWhoisValidityIsValid()
+    {
+        return $this->whoisValidityIsValid;
+    }
+
+    /**
+     * @param bool $whoisValidityIsValid
+     *
+     * @return Contact
+     */
+    public function setWhoisValidityIsValid($whoisValidityIsValid)
+    {
+        $this->whoisValidityIsValid = $whoisValidityIsValid;
+
+        return $this;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getCreatedAt()
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * @param \DateTime $createdAt
+     *
+     * @return Contact
+     */
+    public function setCreatedAt($createdAt)
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }
